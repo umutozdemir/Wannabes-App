@@ -1,0 +1,76 @@
+{% extends 'pages/base.html' %}
+{% block content %}
+ <title>Wannabes</title>
+    <p>Welcome to wannebes app, {% if user.is_authenticated %}{{ user.username }}{%  else %}visitor{% endif %}</p>
+    {% if daily_user_exercises %}
+        <div class="nav">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Exercise</th>
+                        <th scope="col">Calories Burned</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user_exercise in daily_user_exercises  %}
+                        <tr>
+                            <td>{{ user_exercise.exercise.name }}</td>
+                            <td>{{ user_exercise.how_many_calorie_burn }} cal</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+     {% else %}
+            <p>You haven't do any exercise yet.</p>
+     {% endif %}
+    {% if daily_meals %}
+        <div class="nav">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Food</th>
+                        <th scope="col">Calorie</th>
+                        <th scope="col">Protein</th>
+                        <th scope="col">Fat</th>
+                        <th scope="col">Carbohydrate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for meal in daily_meals %}
+                        {% for food in meal.foods.all %}
+                            <tr>
+                                <td>{{ food.name }}</td>
+                                <td>{{ food.calorie }} cal</td>
+                                <td>{{ food.protein_amount }} gr</td>
+                                <td>{{ food.fat_amount }} gr</td>
+                                <td>{{ food.carbohydrate_amount }} gr</td>
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+     {% else %}
+            <p>You haven't eat any food yet.</p>
+     {% endif %}
+    <p>Your daily required calorie intake is {{ user.fitness_person_user.daily_required_calorie_intakes }} calories</p>
+    <p>Your daily calorie intake is {{ daily_person.daily_calorie_intakes }} calories</p>
+    <p>Your daily burned calories are {{ daily_person.daily_burned_calories }}</p>
+    <p>Your daily recommended macros are</p>
+    <ul>
+        <li>Daily recommended protein intake : {{ user.fitness_person_user.required_protein }} gr</li>
+        <li>Daily recommended carbohydrate intake : {{ user.fitness_person_user.required_carbohydrate }} gr</li>
+        <li>Daily recommended fat intake : {{ user.fitness_person_user.required_fat }} gr</li>
+    </ul>
+    <p>Your daily macros are</p>
+    <ul>
+        <li>Daily protein intake : {{ daily_person.daily_protein_intake }} gr</li>
+        <li>Daily carbohydrate intake : {{ daily_person.daily_carbohydrate_intake }} gr</li>
+        <li>Daily fat intake : {{ daily_person.daily_fat_intake }} gr</li>
+    </ul>
+    <p>Your height is : {{ user.fitness_person_user.height }}</p>
+    <p>Your weight is : {{ user.fitness_person_user.weight }}</p>
+    <p>Your body mass index is : {{ user.fitness_person_user.body_mass_index|floatformat:-2  }}</p>
+    <p>Your body fat percentage is : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }}</p>
+{% endblock %}

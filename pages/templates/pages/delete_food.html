@@ -1,0 +1,25 @@
+{% extends 'pages/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<form method="post" >
+        {% csrf_token %}
+        {{ form|crispy }}
+    {% if meal_set.all %}
+         <select class="js-example-basic-single" name="deleted_food_selection">
+            {% for meal in meal_set.all %}
+                  {% for food in meal.foods.all %}
+                      <option value="{{ food.id }},{{ meal.id }}">{{ food.name }}</option>
+                  {% endfor %}
+             {% endfor %}
+         </select>
+         <button type="submit" class="btn btn-success">Delete</button>
+    {% else %}
+        <p>You haven't eat any food yet.</p>
+    {% endif %}
+    </form>
+    <script>
+        $(document).ready(function() {
+            $('.js-example-basic-single').select2();
+        });
+    </script>
+{% endblock %}
