@@ -317,7 +317,7 @@
                                             </div>
                                         <div class="modal-body">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="exampleRadios" id="cardio-radio" value="0" checked>
+                                                <input class="form-check-input" type="radio" name="exampleRadios" id="cardio-radio" value="0">
                                                 <label class="form-check-label" for="exampleRadios1">
                                                     Cardio Exercise
                                                 </label>
@@ -634,18 +634,56 @@
             });
             // Bar Chart #flotBarChart End
         });
-        jQuery(document).ready(function($) {
-            $('.js-example-basic-single').select2();
-        });
+        //jQuery(document).ready(function($) {
+        //    $('.js-example-basic-single').select2();
+        //});
          jQuery(document).ready(function($){
             $("#add-button").click(function(){
             console.log("sadsadas")
-            $('#exercise-selector').hide();
             });
                 });
-         jQuery(document).ready(function($){
-            $("#cardio-radio").prop("checked", true);
-            console.log('asdsadsa');
+         jQuery(document).on('change',function($){
+             if(jQuery('#weight-radio').is(':checked')){
+                 console.log('weight selected')
+                       const exercise_type = jQuery('#weight-radio').val();
+                        jQuery.ajax({
+                            url: '/ajax/exercise_selection/',
+                            data: {
+                                'exercise_type': exercise_type
+                            },
+                            dataType: 'json',
+                            success: function (data) {
+                            if (data.exercises_to_show_in_selection) {
+                                jQuery('.js-example-basic-single').select2();
+                                alert("weight selected");
+                            }
+                            }
+                        });
+             }
+             else if(jQuery('#cardio-radio').is(':checked')){
+                 console.log('cardio selected')
+                       const exercise_type = jQuery('#cardio-radio').val();
+                        jQuery.ajax({
+                            url: '/ajax/exercise_selection/',
+                            data: {
+                                'exercise_type': exercise_type
+                            },
+                            dataType: 'json',
+                            success: function (data) {
+                            if (data.exercises_to_show_in_selection) {
+                                let exercise_names = []
+                                for(var i=0;i<data.exercises_to_show_in_selection.length;i++){
+                                    exercise_names.push(data.exercises_to_show_in_selection[i].name)
+                                }
+                                jQuery('.js-example-basic-single').select2({
+                                    data:data.exercises_to_show_in_selection
+                                });
+                                //alert(data.exercises_to_show_in_selection);
+                                alert(exercise_names)
+                            }
+                            }
+                        });
+             }
         });
     </script>
         </div>

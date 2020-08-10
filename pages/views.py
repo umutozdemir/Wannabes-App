@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from pages.forms import *
@@ -6,6 +8,7 @@ from pages.models import *
 from django.utils import timezone
 from django.views import View
 from pages import calculations
+from django.http import JsonResponse, HttpResponse
 
 
 @method_decorator(login_required, name='dispatch')
@@ -307,3 +310,15 @@ class DeleteExercise(View):
         user_exercise_to_delete = UserExercise.objects.get(pk=user_exercise_id)
         user_exercise_to_delete.delete()
         return redirect('diary')
+
+
+class ExerciseSelection(View):
+
+    def get(self, request, *args, **kwargs):
+        exercise_type = request.GET.get('exercise_type', int)
+        exercises_to_show_in_selection = list(Exercise.objects.filter(exercise_type=exercise_type).values('id', 'name'))
+        data = {
+            'exercises_to_show_in_selection': exercises_to_show_in_selection
+        }
+        return HttpResponse(json.dumps(data), content_type="application/json")
+
