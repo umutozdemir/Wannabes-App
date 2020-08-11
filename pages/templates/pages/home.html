@@ -294,13 +294,7 @@
                                     <div class="todo-list">
                                         <div class="tdl-holder">
                                             <div class="tdl-content">
-                                                <ul>
-                                                    <li>
-                                                        <label>
-                                                            <input type="checkbox"><i class="check-box"></i><span>Bench Press</span>
-                                                            <a href='#' class="fa fa-times"></a>
-                                                        </label>
-                                                    </li>
+                                                <ul id="exercise-checkbox-list">
                                                 </ul>
                                             </div>
                                         </div>
@@ -321,17 +315,26 @@
                                                 <label class="form-check-label" for="exampleRadios1">
                                                     Cardio Exercise
                                                 </label>
+                                                <input hidden class="form-check-input" type="number" name="duration-selection" id="duration-selection">
+                                                <label hidden class="form-check-label" for="duration-selection">
+                                                    Duration
+                                                </label>
                                             </div>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="exampleRadios" id="weight-radio" value="1">
                                                 <label class="form-check-label" for="exampleRadios2">
                                                     Weight Exercise
                                                 </label>
+                                                <input hidden class="form-check-input" type="number" name="set-selection" id="set-selection">
+                                                <label hidden class="form-check-label" for="set-selection">
+                                                    Set Number
+                                                </label>
+                                                <input hidden class="form-check-input" type="number" name="rep-selection" id="rep-selection">
+                                                <label hidden class="form-check-label" for="rep-selection">
+                                                    Rep Number
+                                                </label>
                                             </div>
                                             <select class="js-example-basic-single" name="exercise_selection" id="exercise-selector" style="width: 450px">
-                                                {% for exercise_name in exercise_name_list %}
-                                                    <option>{{ exercise_name }}</option>
-                                                {% endfor %}
                                             </select>
                                             </div>
                                         <div class="modal-footer">
@@ -348,19 +351,24 @@
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="card-title box-title">Diet Program</h4>
-                               <button type="submit" class="btn btn-success waves-effect waves-light" data-toggle="modal" data-target="#add-food-modal"><i class="fa fa-plus-square-o"></i> Add Food</button>
+                               <button type="submit" id="food_add_button" class="btn btn-success waves-effect waves-light" data-toggle="modal" data-target="#add-food-modal"><i class="fa fa-plus-square-o"></i> Add Food</button>
                                 <div class="card-content">
                                     <div class="todo-list">
                                         <div class="tdl-holder">
                                             <div class="tdl-content">
-                                                <ul>
-                                                    <li>
-                                                        <label>
-                                                            <input type="checkbox"><i class="check-box"></i><span><strong>Yumurta Haslamasi</strong></span>
-                                                            <a href='#' class="fa fa-times"></a>
-                                                        </label>
-                                                    </li>
-
+                                                <ul id="food-checkbox-list">
+                                                    {% for diet_program in daily_person.dietprogram_set.all  %}
+                                                        {% for meal in diet_program.meal_set.all %}
+                                                            {% for food in meal.foods.all %}
+                                                                <li>
+                                                                    <label>
+                                                                        <input type="checkbox"><i class="check-box"></i><span><strong>{{ food.name }}</strong></span>
+                                                                        <a href='#' class="fa fa-times"></a>
+                                                                    </label>
+                                                                </li>
+                                                            {% endfor %}
+                                                        {% endfor %}
+                                                    {% endfor %}
                                                 </ul>
                                             </div>
                                         </div>
@@ -374,15 +382,12 @@
                                                 <h4 class="modal-title"><strong>Add Food</strong></h4>
                                             </div>
                                         <div class="modal-body">
-                                             <select class="js-example-basic-single" name="exercise_selection" style="width: 450px">
-                                                   {% for food in food_set.all %}
-                                                        <option value="{{ food.id }}">{{ food.name }}</option>
-                                                    {% endfor %}
+                                             <select class="food_selector" style="width: 450px">
                                                 </select>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
-                                            <button type="button" class="btn btn-success save-event waves-effect waves-light">Add</button>
+                                            <button type="button" id="add_food" class="btn btn-success save-event waves-effect waves-light">Add</button>
                                         </div>
                                     </div>
                                 </div>
@@ -634,17 +639,58 @@
             });
             // Bar Chart #flotBarChart End
         });
-        //jQuery(document).ready(function($) {
-        //    $('.js-example-basic-single').select2();
-        //});
+
+        // add selected exercise to checkbox list.
          jQuery(document).ready(function($){
             $("#add-button").click(function(){
-            console.log("sadsadas")
+                const exercise_name = jQuery('.js-example-basic-single').val()
+                $("#exercise-checkbox-list").append('<li> <label> <input type="checkbox"><i class="check-box"></i><span>'+exercise_name+'</span>\n <a class="fa fa-times"></a> </label> </li>');
             });
                 });
+
+         // add selected food to checkbox list.
+         jQuery(document).ready(function($){
+            $("#add_food").click(function (){
+                let food_name = jQuery('.food_selector').val()
+                console.log(food_name)
+                $("#food-checkbox-list").append('<li> <label> <input type="checkbox"><i class="check-box"></i><span>'+food_name+'</span>\n <a class="fa fa-times"></a> </label> </li>')
+            });
+         });
+
+         jQuery(document).ready(function ($){
+             jQuery('a').click(function (){
+                 //jQuery('a').parent().remove()
+             });
+         });
+
+         jQuery(document).ready(function($){
+            jQuery("#food_add_button").click(function(){
+                console.log('add food')
+                jQuery.ajax({
+                            url: '/ajax/food_selection/',
+                            dataType: 'json',
+                            success: function (data) {
+                            if (data.foods_to_show_in_selection) {
+                                let food_names = []
+                                for(let i=0; i<data.foods_to_show_in_selection.length; i++){
+                                    food_names.push(data.foods_to_show_in_selection[i].name)
+                                }
+                                jQuery('.food_selector').select2({
+                                    maximumSelectionLength: 5,
+                                    data:food_names,
+                                });
+                            }
+                            }
+                        });
+            });
+                });
+
+         // shows appropriate data in exercise selection.
          jQuery(document).on('change',function($){
              if(jQuery('#weight-radio').is(':checked')){
                  console.log('weight selected')
+                 jQuery('set-selection').show()
+                 jQuery('rep-selection').show()
                        const exercise_type = jQuery('#weight-radio').val();
                         jQuery.ajax({
                             url: '/ajax/exercise_selection/',
@@ -654,14 +700,21 @@
                             dataType: 'json',
                             success: function (data) {
                             if (data.exercises_to_show_in_selection) {
-                                jQuery('.js-example-basic-single').select2();
-                                alert("weight selected");
+                                let exercise_names = []
+                                for(var i=0;i<data.exercises_to_show_in_selection.length;i++){
+                                    exercise_names.push(data.exercises_to_show_in_selection[i].name)
+                                }
+                                jQuery('.js-example-basic-single').select2({
+                                    maximumSelectionLength: 5,
+                                    data: exercise_names,
+                                });
                             }
                             }
                         });
              }
              else if(jQuery('#cardio-radio').is(':checked')){
                  console.log('cardio selected')
+                 jQuery('duration-selection').show()
                        const exercise_type = jQuery('#cardio-radio').val();
                         jQuery.ajax({
                             url: '/ajax/exercise_selection/',
@@ -676,10 +729,9 @@
                                     exercise_names.push(data.exercises_to_show_in_selection[i].name)
                                 }
                                 jQuery('.js-example-basic-single').select2({
-                                    data:data.exercises_to_show_in_selection
+                                    maximumSelectionLength: 5,
+                                    data:exercise_names,
                                 });
-                                //alert(data.exercises_to_show_in_selection);
-                                alert(exercise_names)
                             }
                             }
                         });

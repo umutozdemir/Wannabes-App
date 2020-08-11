@@ -1,5 +1,4 @@
 from django.urls import path
-from pages import views
 from pages.views import*
 
 urlpatterns = [
@@ -13,4 +12,5 @@ urlpatterns = [
     path('delete_food', DeleteFood.as_view(), name='delete_food'),
     path('delete_exercise', DeleteExercise.as_view(), name='delete_exercise'),
     path('ajax/exercise_selection/', ExerciseSelection.as_view(), name='exercise_selection'),
+    path('ajax/food_selection/', FoodSelection.as_view(), name='food_selection'),
 ]

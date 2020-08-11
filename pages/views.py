@@ -322,3 +322,12 @@ class ExerciseSelection(View):
         }
         return HttpResponse(json.dumps(data), content_type="application/json")
 
+
+class FoodSelection(View):
+
+    def get(self, request, *args, **kwargs):
+        foods_to_show_in_selection = list(Food.objects.all().values('id', 'name'))
+        data = {
+            'foods_to_show_in_selection': foods_to_show_in_selection
+        }
+        return HttpResponse(json.dumps(data), content_type="application/json")
