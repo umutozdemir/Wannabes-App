@@ -358,15 +358,13 @@
                                             <div class="tdl-content">
                                                 <ul id="food-checkbox-list">
                                                     {% for diet_program in daily_person.dietprogram_set.all  %}
-                                                        {% for meal in diet_program.meal_set.all %}
-                                                            {% for food in meal.foods.all %}
-                                                                <li>
-                                                                    <label>
-                                                                        <input type="checkbox"><i class="check-box"></i><span><strong>{{ food.name }}</strong></span>
-                                                                        <a href='#' class="fa fa-times"></a>
-                                                                    </label>
-                                                                </li>
-                                                            {% endfor %}
+                                                        {% for food in diet_program.foods.all %}
+                                                            <li>
+                                                                <label>
+                                                                    <input type="checkbox"><i class="check-box"></i><span><strong>{{ food.name }}</strong></span>
+                                                                    <a href='#' class="fa fa-times"></a>
+                                                                </label>
+                                                            </li>
                                                         {% endfor %}
                                                     {% endfor %}
                                                 </ul>
@@ -640,19 +638,19 @@
             // Bar Chart #flotBarChart End
         });
 
-        // add selected exercise to checkbox list.
+        // add selected exercise to checkbox list and user's daily exercise program.
          jQuery(document).ready(function($){
             $("#add-button").click(function(){
-                const exercise_name = jQuery('.js-example-basic-single').val()
+                let exercise_name = $('.js-example-basic-single').select2('data')[0].text;
                 $("#exercise-checkbox-list").append('<li> <label> <input type="checkbox"><i class="check-box"></i><span>'+exercise_name+'</span>\n <a class="fa fa-times"></a> </label> </li>');
+
             });
                 });
 
-         // add selected food to checkbox list.
+         // add selected food to checkbox list and user's daily diet program.
          jQuery(document).ready(function($){
             $("#add_food").click(function (){
-                let food_name = jQuery('.food_selector').val()
-                console.log(food_name)
+                let food_name = $('.food_selector').select2('data')[0].text;
                 $("#food-checkbox-list").append('<li> <label> <input type="checkbox"><i class="check-box"></i><span>'+food_name+'</span>\n <a class="fa fa-times"></a> </label> </li>')
             });
          });
@@ -671,13 +669,9 @@
                             dataType: 'json',
                             success: function (data) {
                             if (data.foods_to_show_in_selection) {
-                                let food_names = []
-                                for(let i=0; i<data.foods_to_show_in_selection.length; i++){
-                                    food_names.push(data.foods_to_show_in_selection[i].name)
-                                }
                                 jQuery('.food_selector').select2({
                                     maximumSelectionLength: 5,
-                                    data:food_names,
+                                    data:data.foods_to_show_in_selection,
                                 });
                             }
                             }
@@ -700,13 +694,9 @@
                             dataType: 'json',
                             success: function (data) {
                             if (data.exercises_to_show_in_selection) {
-                                let exercise_names = []
-                                for(var i=0;i<data.exercises_to_show_in_selection.length;i++){
-                                    exercise_names.push(data.exercises_to_show_in_selection[i].name)
-                                }
                                 jQuery('.js-example-basic-single').select2({
                                     maximumSelectionLength: 5,
-                                    data: exercise_names,
+                                    data: data.exercises_to_show_in_selection,
                                 });
                             }
                             }
@@ -724,13 +714,9 @@
                             dataType: 'json',
                             success: function (data) {
                             if (data.exercises_to_show_in_selection) {
-                                let exercise_names = []
-                                for(var i=0;i<data.exercises_to_show_in_selection.length;i++){
-                                    exercise_names.push(data.exercises_to_show_in_selection[i].name)
-                                }
                                 jQuery('.js-example-basic-single').select2({
                                     maximumSelectionLength: 5,
-                                    data:exercise_names,
+                                    data:data.exercises_to_show_in_selection,
                                 });
                             }
                             }

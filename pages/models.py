@@ -91,17 +91,8 @@ class UserExercise(models.Model):
     how_many_calorie_burn = models.IntegerField(default=0)
 
 
-# Diet program is a collection of meals.
+# Diet program is a collection of foods.
 class DietProgram(models.Model):
-    diet_name = models.CharField(max_length=50)
     daily_person = models.ForeignKey(DailyPerson, on_delete=models.CASCADE)
     date_added = models.DateTimeField('day added', auto_now_add=True, null=True)
-
-
-# Meal is a collection of foods, every meal belongs a certain day.
-class Meal(models.Model):
-    meal_name = models.CharField(max_length=50, null=True)
-    fitness_user = models.ForeignKey(FitnessPerson, on_delete=models.CASCADE, null=True)
     foods = models.ManyToManyField(Food)
-    date_added = models.DateTimeField('day added', auto_now_add=True, null=True)
-    diet_program = models.ForeignKey(DietProgram, on_delete=models.CASCADE, null=True)

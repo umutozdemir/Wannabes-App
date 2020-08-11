@@ -1,5 +1,6 @@
 import json
 
+from django.db.models import F
 from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from pages.forms import *
@@ -316,7 +317,9 @@ class ExerciseSelection(View):
 
     def get(self, request, *args, **kwargs):
         exercise_type = request.GET.get('exercise_type', int)
-        exercises_to_show_in_selection = list(Exercise.objects.filter(exercise_type=exercise_type).values('id', 'name'))
+        exercises_to_show_in_selection = list(Exercise.objects.filter(exercise_type=exercise_type).annotate(
+            text=F('name')).values('id', 'text'))
+        print(exercises_to_show_in_selection[0])
         data = {
             'exercises_to_show_in_selection': exercises_to_show_in_selection
         }
@@ -326,7 +329,7 @@ class ExerciseSelection(View):
 class FoodSelection(View):
 
     def get(self, request, *args, **kwargs):
-        foods_to_show_in_selection = list(Food.objects.all().values('id', 'name'))
+        foods_to_show_in_selection = list(Food.objects.annotate(text=F('name')).values('id', 'text'))
         data = {
             'foods_to_show_in_selection': foods_to_show_in_selection
         }

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import FitnessPerson, Exercise, Food, Meal, ExerciseProgram
+from .models import FitnessPerson, Exercise, Food, ExerciseProgram
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 
@@ -9,16 +9,6 @@ from django.contrib.auth.admin import UserAdmin
 class FitnessPersonInline(admin.StackedInline):
     model = FitnessPerson
     can_delete = False
-
-
-#class MealInline(admin.StackedInline):
-#    model = Meal
-#    can_delete = False
-
-
-#class ExerciseProgramInline(admin.StackedInline):
-#    model = ExerciseProgram
-#    can_delete = False
 
 
 class CustomUserAdmin(UserAdmin):
@@ -58,18 +48,10 @@ class ExerciseProgramAdmin(admin.ModelAdmin):
     ]
 
 
-class MealAdmin(admin.ModelAdmin):
-    fieldsets = [
-        ('info',
-         {'fields': ['meal_name', 'foods']})
-    ]
-
-
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Exercise, ExerciseAdmin)
 admin.site.register(Food, FoodAdmin)
 admin.site.register(FitnessPerson, FitnessPersonAdmin)
-admin.site.register(Meal, MealAdmin)
 admin.site.register(ExerciseProgram, ExerciseProgramAdmin)
 
