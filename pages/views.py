@@ -9,7 +9,7 @@ from pages.models import *
 from django.utils import timezone
 from django.views import View
 from pages import calculations
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse
 
 
 @method_decorator(login_required, name='dispatch')
@@ -319,7 +319,6 @@ class ExerciseSelection(View):
         exercise_type = request.GET.get('exercise_type', int)
         exercises_to_show_in_selection = list(Exercise.objects.filter(exercise_type=exercise_type).annotate(
             text=F('name')).values('id', 'text'))
-        print(exercises_to_show_in_selection[0])
         data = {
             'exercises_to_show_in_selection': exercises_to_show_in_selection
         }
