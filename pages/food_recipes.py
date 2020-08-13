@@ -2,7 +2,6 @@
 import sys
 import os
 import django
-from bs4 import BeautifulSoup as bs
 import requests
 
 sys.path.append('/Users/umut/Desktop/DjangoProjects/KivancWannabes')

@@ -40,6 +40,7 @@
                                         </div>
                                         <div class="stat-heading">Weight</div>
                                     </div>
+                                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                 </div>
                             </div>
                         </div>
@@ -126,10 +127,10 @@
                                             : {{ user.fitness_person_user.required_protein }} gr
                                         </div>
                                         {% if daily_person.daily_protein_intake %}
-                                            <div class="por-txt">Intake : {{ daily_person.daily_protein_intake }} cal
+                                            <div class="por-txt">Intake : {{ daily_person.daily_protein_intake }} gr
                                             </div>
                                         {% else %}
-                                            <div class="por-txt">Intake : 0 cal</div>
+                                            <div class="por-txt">Intake : 0 gr</div>
                                         {% endif %}
                                         <div class="progress mb-2" style="height: 5px;">
                                             <div class="progress-bar bg-flat-color-2" role="progressbar"
@@ -145,9 +146,9 @@
                                             gr
                                         </div>
                                         {% if daily_person.daily_fat_intake %}
-                                            <div class="por-txt">Intake : {{ daily_person.daily_fat_intake }} cal</div>
+                                            <div class="por-txt">Intake : {{ daily_person.daily_fat_intake }} gr</div>
                                         {% else %}
-                                            <div class="por-txt">Intake : 0 cal</div>
+                                            <div class="por-txt">Intake : 0 gr</div>
                                         {% endif %}
                                         <div class="progress mb-2" style="height: 5px;">
                                             <div class="progress-bar bg-flat-color-3" role="progressbar"
@@ -162,11 +163,11 @@
                                             : {{ user.fitness_person_user.required_carbohydrate }} gr
                                         </div>
                                         {% if daily_person.daily_carbohydrate_intake %}
-                                            <div class="por-txt">Intake : {{ daily_person.daily_carbohydrate_intakes }}
-                                                cal
+                                            <div class="por-txt">Intake : {{ daily_person.daily_carbohydrate_intake }}
+                                                gr
                                             </div>
                                         {% else %}
-                                            <div class="por-txt">Intake : 0 cal</div>
+                                            <div class="por-txt">Intake : 0 gr</div>
                                         {% endif %}
                                         <div class="progress mb-2" style="height: 5px;">
                                             <div class="progress-bar bg-flat-color-4" role="progressbar"
@@ -212,7 +213,6 @@
                                             <td class="avatar">
                                                 <div class="round-img">
                                                     <a href="#"><img class="rounded-circle"
-                                                                     src="{% static 'images/avatar/1.jpg' %}"
                                                                      alt=""></a>
                                                 </div>
                                             </td>
@@ -229,7 +229,6 @@
                                             <td class="avatar">
                                                 <div class="round-img">
                                                     <a href="#"><img class="rounded-circle"
-                                                                     src="{% static 'images/avatar/2.jpg' %}"
                                                                      alt=""></a>
                                                 </div>
                                             </td>
@@ -246,7 +245,6 @@
                                             <td class="avatar">
                                                 <div class="round-img">
                                                     <a href="#"><img class="rounded-circle"
-                                                                     src="{% static 'images/avatar/3.jpg' %}"
                                                                      alt=""></a>
                                                 </div>
                                             </td>
@@ -263,7 +261,6 @@
                                             <td class="avatar">
                                                 <div class="round-img">
                                                     <a href="#"><img class="rounded-circle"
-                                                                     src="{% static 'images/avatar/4.jpg' %}"
                                                                      alt=""></a>
                                                 </div>
                                             </td>
@@ -280,7 +277,6 @@
                                             <td class="avatar pb-0">
                                                 <div class="round-img">
                                                     <a href="#"><img class="rounded-circle"
-                                                                     src="{% static 'images/avatar/6.jpg' %}"
                                                                      alt=""></a>
                                                 </div>
                                             </td>
@@ -314,10 +310,12 @@
                             <div class="col-lg-6 col-xl-12">
                                 <div class="card bg-flat-color-3  ">
                                     <div class="card-body">
-                                        <h4 class="card-title m-0  white-color ">August 2018</h4>
+                                        <h5 class="card-title m-0  white-color ">Body fat percentage
+                                            : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }}</h5>
                                     </div>
                                     <div class="card-body">
-                                        <div id="flotLine5" class="flot-line"></div>
+                                        <h5 class="card-title mb-0 white-color ">Body mass index
+                                            : {{ user.fitness_person_user.body_mass_index|floatformat:-2 }}</h5>
                                     </div>
                                 </div>
                             </div>
@@ -345,7 +343,9 @@
                                                         <label>
                                                             <input type="checkbox"><i
                                                                 class="check-box"></i><span><strong>{{ user_exercise.exercise.name }}</strong></span>
-                                                            <a href='#' class="fa fa-times"></a>
+                                                            <a href='{{ user_exercise.exercise.video_link }}'
+                                                               class="fa fa-pencil"></a>
+                                                            <a href='' class="fa fa-times"></a>
                                                         </label>
                                                     </li>
                                                 {% endfor %}
@@ -469,6 +469,7 @@
                                                         <label>
                                                             <input type="checkbox"><i
                                                                 class="check-box"></i><span><strong>{{ food.name }}</strong></span>
+                                                            <a href='{{ food.recipe_link }}' class="fa fa-pencil"></a>
                                                             <a href='#' class="fa fa-times"></a>
                                                         </label>
                                                     </li>
