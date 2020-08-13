@@ -18,6 +18,14 @@ class HomeView(View):
 
     def get(self, request, *args, **kwargs):
         current_user = request.user
+        # if an user login for the first time then do calculations.
+        if current_user.date_joined.date() == timezone.now().today().date():
+            calculations.calculate_daily_required_calorie_intakes(current_user.fitness_person_user)
+            calculations.calculate_daily_macros(current_user.fitness_person_user)
+            calculations.calculate_body_mass_index(current_user.fitness_person_user)
+            calculations.calculate_daily_burned_calories(current_user.fitness_person_user)
+            calculations.calculate_body_fat_percentage(current_user.fitness_person_user)
+            current_user.fitness_person_user.save()
         daily_person_of_current_user = current_user.fitness_person_user.dailyperson_set.filter(
             date_added__date=timezone.now().today().date())[0]
         food_set = Food.objects.all()
@@ -48,21 +56,17 @@ class SignupView(View):
             age = form.cleaned_data.get('age')
             weight = form.cleaned_data.get('weight')
             height = form.cleaned_data.get('height')
-            neck = form.cleaned_data.get('neck')
-            waist = form.cleaned_data.get('waist')
-            hip = form.cleaned_data.get('hip')
             purpose_of_use = form.cleaned_data.get('purpose_of_use')
             new_user_username = form.cleaned_data.get('username')
             new_user = User.objects.get(username=new_user_username)
             fitness_person = FitnessPerson(user=new_user, gender=gender_choice,
-                                           age=age, weight=weight, height=height, purpose_of_use=purpose_of_use,
-                                           neck=neck, waist=waist, hip=hip)
+                                           age=age, weight=weight, height=height, purpose_of_use=purpose_of_use)
             fitness_person.save()
             daily_person = DailyPerson.objects.create(fitness_user=fitness_person)
             DietProgram.objects.create(daily_person=daily_person)
             ExerciseProgram.objects.create(daily_person=daily_person)
             fitness_person.save()
-            return redirect('login')
+            return redirect('home')
         else:
             return redirect('signup')
 
@@ -115,7 +119,6 @@ class AddExerciseView(View):
             calculations.calculate_daily_macros(current_user)
             calculations.calculate_body_mass_index(current_user)
             calculations.calculate_daily_burned_calories(current_user)
-            calculations.calculate_body_fat_percentage(current_user)
             current_user.save()
             data = {
                 'message': 'exercise added successfully'
@@ -144,9 +147,7 @@ class AddExerciseView(View):
             calculations.calculate_daily_macros(current_user)
             calculations.calculate_body_mass_index(current_user)
             calculations.calculate_daily_burned_calories(current_user)
-            calculations.calculate_body_fat_percentage(current_user)
             current_user.save()
-            print('weight added')
             data = {
                 'message': 'exercise added successfully'
             }
@@ -173,15 +174,9 @@ class EditFitnessProfileView(View):
             age = edit_fitness_profile_form.cleaned_data.get('age')
             weight = edit_fitness_profile_form.cleaned_data.get('weight')
             height = edit_fitness_profile_form.cleaned_data.get('height')
-            neck = edit_fitness_profile_form.cleaned_data.get('neck')
-            waist = edit_fitness_profile_form.cleaned_data.get('waist')
-            hip = edit_fitness_profile_form.cleaned_data.get('hip')
             current_fitness_person.age = age
             current_fitness_person.weight = weight
             current_fitness_person.height = height
-            current_fitness_person.neck = neck
-            current_fitness_person.waist = waist
-            current_fitness_person.hip = hip
             calculations.calculate_daily_required_calorie_intakes(current_fitness_person)
             calculations.calculate_daily_macros(current_fitness_person)
             calculations.calculate_body_mass_index(current_fitness_person)
@@ -209,7 +204,6 @@ class AddFoodView(View):
         daily_person_of_current_user.daily_fat_intake += (food_to_add.fat_amount * portion)
         daily_person_of_current_user.daily_carbohydrate_intake += (food_to_add.carbohydrate_amount * portion)
         daily_person_of_current_user.daily_calorie_intakes += (food_to_add.calorie * portion)
-        print(daily_person_of_current_user.daily_calorie_intakes)
         daily_person_of_current_user.save()
         daily_diet_program.save()
         calculations.calculate_daily_required_calorie_intakes(current_user)
@@ -217,9 +211,8 @@ class AddFoodView(View):
         calculations.calculate_body_mass_index(current_user)
         calculations.calculate_daily_burned_calories(current_user)
         current_user.save()
-        print('food added')
         data = {
-            'message': 'exercise added successfully'
+            'message': 'food added successfully'
         }
         return HttpResponse(json.dumps(data), content_type="application/json")
 

@@ -18,9 +18,6 @@ class CustomUserForm(UserCreationForm):
     gender_choice = forms.ChoiceField(required=True, choices=GENDER_CHOICE)
     weight = forms.FloatField(required=True, help_text='please enter in kg')
     height = forms.FloatField(required=True, help_text='please enter in meter')
-    neck = forms.IntegerField(required=True, help_text='please enter in meter')
-    waist = forms.IntegerField(required=True, help_text='please enter in meter')
-    hip = forms.IntegerField(required=True, help_text='please enter in meter')
     PURPOSE_CHOICE = (
         (0, 'I want to keep my weight.'),
         (1, 'I want to lose weight.'),
@@ -33,7 +30,7 @@ class CustomUserForm(UserCreationForm):
     class Meta:
         model = User
         fields = ("username", "first_name", "last_name", "email", "password1", "password2",
-                  "age", "gender_choice", "weight", "height", "neck", "waist", "hip", "purpose_of_use")
+                  "age", "gender_choice", "weight", "height", "purpose_of_use")
 
 
 class WeightExerciseForm(forms.Form):
@@ -68,9 +65,6 @@ class EditFitnessProfileForm(forms.Form):
     age = forms.IntegerField(label='Age')
     weight = forms.FloatField(required=True, widget=forms.TextInput(attrs={'placeholder': 'in kg'}), label='Weight')
     height = forms.FloatField(required=True, widget=forms.TextInput(attrs={'placeholder': 'in meter'}), label='Height')
-    neck = forms.IntegerField(required=True, widget=forms.TextInput(attrs={'placeholder': 'in meter'}), label='Neck')
-    waist = forms.IntegerField(required=True, widget=forms.TextInput(attrs={'placeholder': 'in meter'}), label='Waist')
-    hip = forms.IntegerField(required=True, widget=forms.TextInput(attrs={'placeholder': 'in meter'}), label='Hip')
     PURPOSE_CHOICE = (
         (0, 'I want to keep my weight.'),
         (1, 'I want to lose weight.'),

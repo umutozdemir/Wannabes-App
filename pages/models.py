@@ -30,9 +30,6 @@ class FitnessPerson(models.Model):
     required_carbohydrate = models.IntegerField(null=True, blank=True)
     required_protein = models.IntegerField(null=True, blank=True)
     required_fat = models.IntegerField(null=True, blank=True)
-    neck = models.IntegerField(null=True, blank=True)
-    waist = models.IntegerField(null=True, blank=True)
-    hip = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.user.username

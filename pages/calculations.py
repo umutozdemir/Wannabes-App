@@ -4,16 +4,10 @@ import math
 
 
 def calculate_body_fat_percentage(fitness_person):
-    # 0 means user is male , 1 means user is female. Gender changes the calculation of body fat.
     if fitness_person.gender == FitnessPerson.MALE:
-        fitness_person.body_fat_percentage = (
-                495 / ((1.0324 - 0.19077 * math.log10(fitness_person.waist - fitness_person.neck)) + (
-                0.15456 * math.log10(fitness_person.height))) - 450)
-
+        fitness_person.body_fat_percentage = (1.2 * fitness_person.body_mass_index) + (0.23 * fitness_person.age) - 16.2
     elif fitness_person.gender == FitnessPerson.FEMALE:
-        fitness_person.body_fat_percentage = (495 / ((1.29579 - 0.35004 * math.log10(fitness_person.waist +
-                                                            fitness_person.hip - fitness_person.neck)) + (
-                                                             0.22100 * math.log10(fitness_person.height))) - 450)
+        fitness_person.body_fat_percentage = (1.2 * fitness_person.body_mass_index) + (0.23 * fitness_person.age) - 5.4
 
 
 def calculate_body_mass_index(fitness_person):
