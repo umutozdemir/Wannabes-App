@@ -340,6 +340,15 @@
                                     <div class="tdl-holder">
                                         <div class="tdl-content">
                                             <ul id="exercise-checkbox-list">
+                                                {% for user_exercise in daily_exercise_program.userexercise_set.all %}
+                                                    <li>
+                                                        <label>
+                                                            <input type="checkbox"><i
+                                                                class="check-box"></i><span><strong>{{ user_exercise.exercise.name }}</strong></span>
+                                                            <a href='#' class="fa fa-times"></a>
+                                                        </label>
+                                                    </li>
+                                                {% endfor %}
                                             </ul>
                                         </div>
                                     </div>
@@ -455,16 +464,14 @@
                                     <div class="tdl-holder">
                                         <div class="tdl-content">
                                             <ul id="food-checkbox-list">
-                                                {% for diet_program in daily_person.dietprogram_set.all %}
-                                                    {% for food in diet_program.foods.all %}
-                                                        <li>
-                                                            <label>
-                                                                <input type="checkbox"><i
-                                                                    class="check-box"></i><span><strong>{{ food.name }}</strong></span>
-                                                                <a href='#' class="fa fa-times"></a>
-                                                            </label>
-                                                        </li>
-                                                    {% endfor %}
+                                                {% for food in daily_diet_program.foods.all %}
+                                                    <li>
+                                                        <label>
+                                                            <input type="checkbox"><i
+                                                                class="check-box"></i><span><strong>{{ food.name }}</strong></span>
+                                                            <a href='#' class="fa fa-times"></a>
+                                                        </label>
+                                                    </li>
                                                 {% endfor %}
                                             </ul>
                                         </div>
@@ -763,49 +770,112 @@
                 // Bar Chart #flotBarChart End
             });
 
-            // add selected exercise to checkbox list and user's daily exercise program.
+            // add selected exercise to checkbox list.
             jQuery(document).ready(function ($) {
                 $("#add-button").click(function () {
                     let exercise_name = $('.js-example-basic-single').select2('data')[0].text;
+                    let exercise_id = $('.js-example-basic-single').select2('data')[0].id;
+                    let daily_person_id = {{ daily_person.id }};
+                    let daily_exercise_program_id = {{ daily_exercise_program.id }};
                     let duration = $('#duration-selection').val();
-                    console.log(duration);
-                    $("#exercise-checkbox-list").append('<li> <label> <input type="checkbox"><i class="check-box"></i><span>' + exercise_name + '</span>\n <a class="fa fa-times"></a> </label> </li>');
+                    let set_number = $('#set-selection').val();
+                    let rep_number = $('#rep-selection').val();
+                    if (jQuery('#cardio-radio').is(':checked')) {
+                        if (duration === '') {
+                            alert('Please fill out duration field')
+                        } else {
+                            jQuery.ajax({
+                                url: '/ajax/add_exercise/',
+                                dataType: 'json',
+                                data: {
+                                    'exercise_type': 0,
+                                    'exercise_id': exercise_id,
+                                    'duration': duration,
+                                    'daily_person_id': daily_person_id,
+                                    'daily_exercise_program_id': daily_exercise_program_id,
+                                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                                },
+                                type: 'POST',
+                            });
+                            $("#exercise-checkbox-list").append('<li> <label> <input type="checkbox"><i class="check-box"></i><span>' + exercise_name + " -> duration : " + duration + " minute" + '</span>\n <a class="fa fa-times"></a> </label> </li>');
+                        }
+                    } else if (jQuery('#weight-radio').is(':checked')) {
+                        if (set_number === '') {
+                            alert('Please fill out set number field')
+                        } else if (rep_number === '') {
+                            alert('Please fill out rep number field')
+                        } else {
+                            jQuery.ajax({
+                                url: '/ajax/add_exercise/',
+                                dataType: 'json',
+                                data: {
+                                    'exercise_type': 1,
+                                    'exercise_id': exercise_id,
+                                    'set_number': set_number,
+                                    'rep_number': rep_number,
+                                    'daily_person_id': daily_person_id,
+                                    'daily_exercise_program_id': daily_exercise_program_id,
+                                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                                },
+                                type: 'POST',
+                            });
+                            $("#exercise-checkbox-list").append('<li> <label> <input type="checkbox"><i class="check-box"></i><span>' + exercise_name + " -> set number : " + set_number + " , rep number" + rep_number + '</span>\n <a class="fa fa-times"></a> </label> </li>');
+                        }
+                    }
                 });
             });
 
-            // add selected food to checkbox list and user's daily diet program.
+            // add selected food to checkbox list.
             jQuery(document).ready(function ($) {
                 $("#add_food").click(function () {
                     let food_name = $('.food_selector').select2('data')[0].text;
-                    $("#food-checkbox-list").append('<li> <label> <input type="checkbox"><i class="check-box"></i><span>' + food_name + '</span>\n <a class="fa fa-times"></a> </label> </li>')
+                    let food_id = $('.food_selector').select2('data')[0].id;
+                    let daily_person_id = {{ daily_person.id }};
+                    let portion = $('#portion-selection').val();
+                    if (portion === '') {
+                        alert('Please fill out portion field.')
+                    } else {
+                        jQuery.ajax({
+                            url: '/ajax/add_food/',
+                            dataType: 'json',
+                            data: {
+                                'food_id': food_id,
+                                'portion': portion,
+                                'daily_person_id': daily_person_id,
+                                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                            },
+                            type: 'POST',
+                        });
+                        console.log(food_id);
+                        $("#food-checkbox-list").append('<li> <label> <input type="checkbox"><i class="check-box"></i><span>' + food_name + '  portion ->' + portion + '</span>\n <a class="fa fa-times"></a> </label> </li>')
+                    }
                 });
             });
 
+            // shows appropriate data in food selection.
             jQuery(document).ready(function ($) {
-                jQuery('a').click(function () {
-                    //jQuery('a').parent().remove()
-                });
-            });
-
-            jQuery(document).ready(function ($) {
+                var loaded = false
                 jQuery("#food_add_button").click(function () {
-                    console.log('add food')
-                    jQuery('#portion-selection').removeAttr('hidden');
-                    jQuery('#portion-selection-label').removeAttr('hidden');
-                    jQuery.ajax({
-                        url: '/ajax/food_selection/',
-                        dataType: 'json',
-                        success: function (data) {
-                            console.log('frontend')
-                            if (data.foods_to_show_in_selection) {
-                                console.log('select2')
-                                jQuery('#food-selector').select2({
-                                    maximumSelectionLength: 5,
-                                    data: data.foods_to_show_in_selection,
-                                });
+                    if (loaded === false) {
+                        jQuery('#portion-selection').removeAttr('hidden');
+                        jQuery('#portion-selection-label').removeAttr('hidden');
+                        jQuery.ajax({
+                            url: '/ajax/food_selection/',
+                            dataType: 'json',
+                            success: function (data) {
+                                console.log('frontend')
+                                if (data.foods_to_show_in_selection) {
+                                    console.log('select2')
+                                    jQuery('#food-selector').select2({
+                                        maximumSelectionLength: 5,
+                                        data: data.foods_to_show_in_selection,
+                                    });
+                                }
+                                loaded = true
                             }
-                        }
-                    });
+                        });
+                    }
+
                 });
             });
 
