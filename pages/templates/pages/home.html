@@ -107,7 +107,7 @@
                                     <div class="progress-box progress-1">
                                         <h4 class="por-title">Calorie Intake</h4>
                                         <div class="por-txt">Recommended
-                                            : {{ user.fitness_person_user.daily_required_calorie_intakes }} cal
+                                            : {{ user.fitness_person_user.daily_required_calorie_intakes|floatformat:-2 }} cal
                                         </div>
                                         {% if daily_person.daily_calorie_intakes %}
                                             <div class="por-txt">Intake : {{ daily_person.daily_calorie_intakes }} cal
@@ -126,7 +126,7 @@
                                     <div class="progress-box progress-2">
                                         <h4 class="por-title">Protein Intake</h4>
                                         <div class="por-txt">Recommended
-                                            : {{ user.fitness_person_user.required_protein }} gr
+                                            : {{ user.fitness_person_user.required_protein|floatformat:-2 }} gr
                                         </div>
                                         {% if daily_person.daily_protein_intake %}
                                             <div class="por-txt">Intake : {{ daily_person.daily_protein_intake }} gr
@@ -144,7 +144,7 @@
                                     </div>
                                     <div class="progress-box progress-2">
                                         <h4 class="por-title">Fat Intake</h4>
-                                        <div class="por-txt">Recommended : {{ user.fitness_person_user.required_fat }}
+                                        <div class="por-txt">Recommended : {{ user.fitness_person_user.required_fat|floatformat:-2 }}
                                             gr
                                         </div>
                                         {% if daily_person.daily_fat_intake %}
@@ -162,7 +162,7 @@
                                     <div class="progress-box progress-2">
                                         <h4 class="por-title">Carbohydrate Intake</h4>
                                         <div class="por-txt">Recommended
-                                            : {{ user.fitness_person_user.required_carbohydrate }} gr
+                                            : {{ user.fitness_person_user.required_carbohydrate|floatformat:-2 }} gr
                                         </div>
                                         {% if daily_person.daily_carbohydrate_intake %}
                                             <div class="por-txt">Intake : {{ daily_person.daily_carbohydrate_intake }}

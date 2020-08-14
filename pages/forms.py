@@ -24,8 +24,6 @@ class CustomUserForm(UserCreationForm):
         (2, 'I want to gain weight'),
     )
     purpose_of_use = forms.ChoiceField(required=True, choices=PURPOSE_CHOICE)
-    if User.objects.filter(email=email).exists():
-        raise ValidationError("Email exists")
 
     class Meta:
         model = User

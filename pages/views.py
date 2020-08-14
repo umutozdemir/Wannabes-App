@@ -51,6 +51,10 @@ class SignupView(View):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
+            email = form.cleaned_data.get('email')
+            print(email)
+            if User.objects.filter(email=email).exists():
+                raise ValidationError("Email exists")
             form.save()
             gender_choice = form.cleaned_data.get('gender_choice')
             age = form.cleaned_data.get('age')
