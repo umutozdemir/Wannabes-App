@@ -75,7 +75,9 @@
                                 <div class="stat-content">
                                     <div class="text-left dib">
                                         <div class="stat-text"><span
-                                                class="count" id="daily_calorie_intakes">{{ daily_person.daily_calorie_intakes }}</span> cal
+                                                class="count"
+                                                id="daily_calorie_intakes">{{ daily_person.daily_calorie_intakes }}</span>
+                                            cal
                                         </div>
                                         <div class="stat-heading">Calorie Intake</div>
                                     </div>
@@ -341,11 +343,17 @@
                                                 {% for user_exercise in daily_exercise_program.userexercise_set.all %}
                                                     <li>
                                                         <label>
-                                                            <input type="checkbox"><i
-                                                                class="check-box"></i><span><strong>{{ user_exercise.exercise.name }}</strong></span>
-                                                            <a href='{{ user_exercise.exercise.video_link }}'
-                                                               class="fa fa-pencil"></a>
-                                                            <a href='' class="fa fa-times"></a>
+                                                            {% if user_exercise.exercise.exercise_type == 0 %}
+                                                                <span><strong>{{ user_exercise.exercise.name }} | duration -> {{ user_exercise.duration }} minutes</strong></span>
+                                                                <a href='{{ user_exercise.exercise.video_link }}'
+                                                                   class="fa fa-pencil"></a>
+                                                                <a href='' class="fa fa-times"></a>
+                                                            {% elif user_exercise.exercise.exercise_type == 1 %}
+                                                                <span><strong>{{ user_exercise.exercise.name }} | set number -> {{ user_exercise.set_number }} | rep number -> {{ user_exercise.rep_number }}</strong></span>
+                                                                <a href='{{ user_exercise.exercise.video_link }}'
+                                                                   class="fa fa-pencil"></a>
+                                                                <a href='' class="fa fa-times"></a>
+                                                            {% endif %}
                                                         </label>
                                                     </li>
                                                 {% endfor %}
@@ -464,13 +472,12 @@
                                     <div class="tdl-holder">
                                         <div class="tdl-content">
                                             <ul id="food-checkbox-list">
-                                                {% for food in daily_diet_program.foods.all %}
+                                                {% for user_food in daily_diet_program.userfood_set.all %}
                                                     <li>
                                                         <label>
-                                                            <input type="checkbox"><i
-                                                                class="check-box"></i><span><strong>{{ food.name }}</strong></span>
-                                                            <a href='{{ food.recipe_link }}' class="fa fa-pencil"></a>
-                                                            <a href='#' class="fa fa-times"></a>
+                                                            <span><strong>{{ user_food.food.name }} | portion -> {{ user_food.portion }}</strong></span>
+                                                            <a href='{{ user_food.food.recipe_link }}' class="fa fa-pencil"></a>
+                                                            <button class="fa fa-times" id="delete-food-button" value="{{ user_food.id }},{{ daily_diet_program.id }}"></button>
                                                         </label>
                                                     </li>
                                                 {% endfor %}
@@ -798,7 +805,7 @@
                                 },
                                 type: 'POST',
                             });
-                            $("#exercise-checkbox-list").append('<li> <label> <input type="checkbox"><i class="check-box"></i><span>' + exercise_name + " -> duration : " + duration + " minute" + '</span>\n <a class="fa fa-times"></a> </label> </li>');
+                            $("#exercise-checkbox-list").append('<li> <label> <span><strong>' + exercise_name + " -> duration : " + duration + " minute" + '<strong></span>\n </label> </li>');
                         }
                     } else if (jQuery('#weight-radio').is(':checked')) {
                         if (set_number === '') {
@@ -820,7 +827,7 @@
                                 },
                                 type: 'POST',
                             });
-                            $("#exercise-checkbox-list").append('<li> <label> <input type="checkbox"><i class="check-box"></i><span>' + exercise_name + " -> set number : " + set_number + " , rep number" + rep_number + '</span>\n <a class="fa fa-times"></a> </label> </li>');
+                            $("#exercise-checkbox-list").append('<li> <label><span><strong>' + exercise_name + " -> set number : " + set_number + " , rep number" + rep_number + '</strong></span>\n  </label> </li>');
                         }
                     }
                 });
@@ -832,6 +839,7 @@
                     let food_name = $('.food_selector').select2('data')[0].text;
                     let food_id = $('.food_selector').select2('data')[0].id;
                     let daily_person_id = {{ daily_person.id }};
+                    let daily_diet_program_id = {{ daily_diet_program.id }};
                     let portion = $('#portion-selection').val();
                     if (portion === '') {
                         alert('Please fill out portion field.')
@@ -843,12 +851,13 @@
                                 'food_id': food_id,
                                 'portion': portion,
                                 'daily_person_id': daily_person_id,
+                                'daily_diet_program_id': daily_diet_program_id,
                                 'csrfmiddlewaretoken': '{{ csrf_token }}',
                             },
                             type: 'POST',
                         });
                         console.log(food_id);
-                        $("#food-checkbox-list").append('<li> <label> <input type="checkbox"><i class="check-box"></i><span>' + food_name + '  portion ->' + portion + '</span>\n <a class="fa fa-times"></a> </label> </li>')
+                        $("#food-checkbox-list").append('<li> <label> <span><strong>' + food_name +  ' | portion ->' + portion + '</strong></span>\n </label> </li>')
                     }
                 });
             });
@@ -935,16 +944,10 @@
                 }
             });
 
-            jQuery(document).ready(function () {
-                jQuery('.check-box').click(function () {
-                    console.log('patlamadi');
-                    if ($(this).prop("checked") == true) {
-                        console.log("Checkbox is checked.");
-                    } else if ($(this).prop("checked") == false) {
-                        console.log("Checkbox is unchecked.");
-                    }
-                });
-            });
+             jQuery("#delete-food-button").click(function () {
+                let id = jQuery('#delete-food-button').val();
+                console.log(id);
+             });
         </script>
     </div>
 {% endblock %}

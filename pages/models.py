@@ -92,4 +92,9 @@ class UserExercise(models.Model):
 class DietProgram(models.Model):
     daily_person = models.ForeignKey(DailyPerson, on_delete=models.CASCADE)
     date_added = models.DateTimeField('day added', auto_now_add=True, null=True)
-    foods = models.ManyToManyField(Food)
+
+
+class UserFood(models.Model):
+    food = models.ForeignKey(Food, on_delete=models.CASCADE, null=True)
+    diet_program = models.ForeignKey(DietProgram, on_delete=models.CASCADE)
+    portion = models.IntegerField(default=0)

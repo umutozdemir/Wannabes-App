@@ -194,12 +194,14 @@ class AddFoodView(View):
         current_user = request.user.fitness_person_user
         daily_person_id = request.POST.get('daily_person_id')
         food_id = request.POST.get('food_id')
+        daily_diet_program_id = request.POST.get('daily_diet_program_id')
         portion = int(request.POST.get('portion'))
         food_to_add = Food.objects.get(pk=food_id)
         daily_person_of_current_user = DailyPerson.objects.get(pk=daily_person_id)
-        daily_diet_program = daily_person_of_current_user.dietprogram_set.filter(
-            date_added__date=timezone.now().today().date())[0]
-        daily_diet_program.foods.add(food_to_add)
+        daily_diet_program = DietProgram.objects.get(pk=daily_diet_program_id)
+        user_food_to_add = UserFood.objects.create(diet_program=daily_diet_program,
+                                                   food=food_to_add,
+                                                   portion=portion)
         daily_person_of_current_user.daily_protein_intake += (food_to_add.protein_amount * portion)
         daily_person_of_current_user.daily_fat_intake += (food_to_add.fat_amount * portion)
         daily_person_of_current_user.daily_carbohydrate_intake += (food_to_add.carbohydrate_amount * portion)
@@ -236,9 +238,7 @@ class DeleteFood(View):
         deleted_food_selection = request.POST.get('deleted_food_selection').split(',')
         food_id = int(deleted_food_selection[0])
         meal_id = int(deleted_food_selection[1])
-        meal = Meal.objects.get(pk=meal_id)
         food_to_delete = Food.objects.get(pk=food_id)
-        meal.foods.remove(food_to_delete)
         return redirect('diary')
 
 
