@@ -56,7 +56,9 @@
                                 <div class="stat-content">
                                     <div class="text-left dib">
                                         <div class="stat-text"><span
-                                                class="count">{{ daily_person.daily_burned_calories }}</span> cal
+                                                class="count"
+                                                id="daily_burned_calories">{{ daily_person.daily_burned_calories }}</span>
+                                            cal
                                         </div>
                                         <div class="stat-heading">Calorie Burned</div>
                                     </div>
@@ -112,7 +114,8 @@
                                             cal
                                         </div>
                                         {% if daily_person.daily_calorie_intakes %}
-                                            <div class="por-txt">Intake : {{ daily_person.daily_calorie_intakes }} cal
+                                            <div class="por-txt" id="progress-bar-calorie-intakes">Intake
+                                                : {{ daily_person.daily_calorie_intakes }} cal
                                             </div>
                                         {% else %}
                                             <div class="por-txt">Intake : 0 cal</div>
@@ -131,7 +134,8 @@
                                             : {{ user.fitness_person_user.required_protein|floatformat:-2 }} gr
                                         </div>
                                         {% if daily_person.daily_protein_intake %}
-                                            <div class="por-txt">Intake : {{ daily_person.daily_protein_intake }} gr
+                                            <div class="por-txt" id="progress-bar-protein-intake">Intake
+                                                : {{ daily_person.daily_protein_intake }} gr
                                             </div>
                                         {% else %}
                                             <div class="por-txt">Intake : 0 gr</div>
@@ -151,7 +155,9 @@
                                             gr
                                         </div>
                                         {% if daily_person.daily_fat_intake %}
-                                            <div class="por-txt">Intake : {{ daily_person.daily_fat_intake }} gr</div>
+                                            <div class="por-txt" id="progress-bar-fat-intake">Intake
+                                                : {{ daily_person.daily_fat_intake }} gr
+                                            </div>
                                         {% else %}
                                             <div class="por-txt">Intake : 0 gr</div>
                                         {% endif %}
@@ -168,7 +174,8 @@
                                             : {{ user.fitness_person_user.required_carbohydrate|floatformat:-2 }} gr
                                         </div>
                                         {% if daily_person.daily_carbohydrate_intake %}
-                                            <div class="por-txt">Intake : {{ daily_person.daily_carbohydrate_intake }}
+                                            <div class="por-txt" id="progress-bar-carb-intake">Intake
+                                                : {{ daily_person.daily_carbohydrate_intake }}
                                                 gr
                                             </div>
                                         {% else %}
@@ -691,6 +698,10 @@
                                     'csrfmiddlewaretoken': '{{ csrf_token }}',
                                 },
                                 type: 'POST',
+                                success: function (data) {
+                                    console.log(data.daily_burned_calories);
+                                    jQuery('#daily_burned_calories').text(data.daily_burned_calories);
+                                }
                             });
                             $("#exercise-checkbox-list").append('<li> <label> <span><strong>' + exercise_name + "| " + duration + " min" + '<strong></span>\n </label> </li>');
                         }
@@ -713,6 +724,10 @@
                                     'csrfmiddlewaretoken': '{{ csrf_token }}',
                                 },
                                 type: 'POST',
+                                success: function (data) {
+                                    console.log(data.daily_burned_calories);
+                                    jQuery('#daily_burned_calories').text(data.daily_burned_calories);
+                                }
                             });
                             $("#exercise-checkbox-list").append('<li> <label><span><strong>' + exercise_name + "| " + set_number + "x" + rep_number + '</strong></span>\n  </label> </li>');
                         }
@@ -744,6 +759,13 @@
                                 'csrfmiddlewaretoken': '{{ csrf_token }}',
                             },
                             type: 'POST',
+                            success: function (data) {
+                                jQuery('#daily_calorie_intakes').text(data.daily_calorie_intakes);
+                                jQuery('#progress-bar-calorie-intakes').text(data.daily_calorie_intakes);
+                                jQuery('#progress-bar-protein-intake').text(data.daily_protein_intake);
+                                jQuery('#progress-bar-fat-intake').text(data.daily_fat_intake);
+                                jQuery('#progress-bar-carb-intake').text(data.daily_carbohydrate_intake);
+                            }
                         });
                         $("#food-checkbox-list").append('<li> <label> <span><strong>' + food_name + '| (x' + portion + ')' + '</strong></span>\n </label> </li>')
                         alert('Food added successfully')
@@ -763,9 +785,7 @@
                             url: '/ajax/food_selection/',
                             dataType: 'json',
                             success: function (data) {
-                                console.log('frontend')
                                 if (data.foods_to_show_in_selection) {
-                                    console.log('select2')
                                     jQuery('#food-selector').select2({
                                         maximumSelectionLength: 5,
                                         data: data.foods_to_show_in_selection,
@@ -781,7 +801,6 @@
             // shows appropriate data in exercise selection.
             jQuery('.form-check-input').on('change', function ($) {
                 if (jQuery('#weight-radio').is(':checked')) {
-                    console.log('weight selected')
                     jQuery('#set-selection').removeAttr('hidden');
                     jQuery('#rep-selection').removeAttr('hidden');
                     jQuery('#set-selection-label').removeAttr('hidden');
@@ -806,7 +825,6 @@
                         }
                     });
                 } else if (jQuery('#cardio-radio').is(':checked')) {
-                    console.log('cardio selected')
                     jQuery('#duration-selection').removeAttr('hidden');
                     jQuery('#duration-selection-label').removeAttr('hidden');
                     jQuery('#set-selection').attr('hidden', 'hidden');

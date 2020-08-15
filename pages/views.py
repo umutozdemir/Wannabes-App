@@ -125,6 +125,7 @@ class AddExerciseView(View):
             calculations.calculate_daily_burned_calories(current_user)
             current_user.save()
             data = {
+                'daily_burned_calories': daily_person_of_current_user.daily_burned_calories,
                 'message': 'exercise added successfully'
             }
             return HttpResponse(json.dumps(data), content_type="application/json")
@@ -153,6 +154,7 @@ class AddExerciseView(View):
             calculations.calculate_daily_burned_calories(current_user)
             current_user.save()
             data = {
+                'daily_burned_calories': daily_person_of_current_user.daily_burned_calories,
                 'message': 'exercise added successfully'
             }
             return HttpResponse(json.dumps(data), content_type="application/json")
@@ -218,6 +220,10 @@ class AddFoodView(View):
         calculations.calculate_daily_burned_calories(current_user)
         current_user.save()
         data = {
+            'daily_calorie_intakes': daily_person_of_current_user.daily_calorie_intakes,
+            'daily_protein_intake': daily_person_of_current_user.daily_protein_intake,
+            'daily_fat_intake': daily_person_of_current_user.daily_fat_intake,
+            'daily_carbohydrate_intake': daily_person_of_current_user.daily_carbohydrate_intake,
             'message': 'food added successfully'
         }
         return HttpResponse(json.dumps(data), content_type="application/json")
