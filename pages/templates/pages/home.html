@@ -36,9 +36,14 @@
                                 <div class="stat-content">
                                     <div class="text-left dib">
                                         <div class="stat-text"><span
-                                                class="count">{{ user.fitness_person_user.weight }}</span> kg
+                                               id="fitness-user-weight" class="count">{{ user.fitness_person_user.weight }}</span> kg
                                         </div>
                                         <div class="stat-heading">Weight</div>
+                                        <button type="submit" class="btn btn-success waves-effect waves-light"
+                                                data-toggle="modal"
+                                                data-target="#edit-profile-modal">
+                                            Edit Profile
+                                        </button>
                                     </div>
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                                 </div>
@@ -109,13 +114,13 @@
                                     <h4 class="box-title"><u>Daily Track</u></h4>
                                     <div class="progress-box progress-1">
                                         <h4 class="por-title">Calorie Intake</h4>
-                                        <div class="por-txt">Recommended
+                                        <div class="por-txt" id="recommended-calorie-intakes">Recommended
                                             : {{ user.fitness_person_user.daily_required_calorie_intakes|floatformat:-2 }}
                                             cal
                                         </div>
                                         {% if daily_person.daily_calorie_intakes %}
                                             <div class="por-txt" id="progress-bar-calorie-intakes">Intake
-                                                : {{ daily_person.daily_calorie_intakes }} cal
+                                                : {{ daily_person.daily_calorie_intakes|floatformat:-2 }} cal
                                             </div>
                                         {% else %}
                                             <div class="por-txt">Intake : 0 cal</div>
@@ -130,12 +135,12 @@
                                     </div>
                                     <div class="progress-box progress-2">
                                         <h4 class="por-title">Protein Intake</h4>
-                                        <div class="por-txt">Recommended
+                                        <div class="por-txt" id="recommended-protein-intake">Recommended
                                             : {{ user.fitness_person_user.required_protein|floatformat:-2 }} gr
                                         </div>
                                         {% if daily_person.daily_protein_intake %}
                                             <div class="por-txt" id="progress-bar-protein-intake">Intake
-                                                : {{ daily_person.daily_protein_intake }} gr
+                                                : {{ daily_person.daily_protein_intake|floatformat:-2 }} gr
                                             </div>
                                         {% else %}
                                             <div class="por-txt">Intake : 0 gr</div>
@@ -150,13 +155,13 @@
                                     </div>
                                     <div class="progress-box progress-2">
                                         <h4 class="por-title">Fat Intake</h4>
-                                        <div class="por-txt">Recommended
+                                        <div class="por-txt" id="recommended-fat-intake">Recommended
                                             : {{ user.fitness_person_user.required_fat|floatformat:-2 }}
                                             gr
                                         </div>
                                         {% if daily_person.daily_fat_intake %}
                                             <div class="por-txt" id="progress-bar-fat-intake">Intake
-                                                : {{ daily_person.daily_fat_intake }} gr
+                                                : {{ daily_person.daily_fat_intake|floatformat:-2 }} gr
                                             </div>
                                         {% else %}
                                             <div class="por-txt">Intake : 0 gr</div>
@@ -170,12 +175,12 @@
                                     </div>
                                     <div class="progress-box progress-2">
                                         <h4 class="por-title">Carbohydrate Intake</h4>
-                                        <div class="por-txt">Recommended
+                                        <div class="por-txt" id="recommended-carbohydrate-intake">Recommended
                                             : {{ user.fitness_person_user.required_carbohydrate|floatformat:-2 }} gr
                                         </div>
                                         {% if daily_person.daily_carbohydrate_intake %}
                                             <div class="por-txt" id="progress-bar-carb-intake">Intake
-                                                : {{ daily_person.daily_carbohydrate_intake }}
+                                                : {{ daily_person.daily_carbohydrate_intake|floatformat:-2 }}
                                                 gr
                                             </div>
                                         {% else %}
@@ -211,11 +216,11 @@
                         <div class="col-lg-4">
                             <div class="card bg-flat-color-3  ">
                                 <div class="card-body">
-                                    <h5 class="card-title m-0  white-color ">Body fat percentage
+                                    <h5 class="card-title m-0  white-color " id="body-fat-percentage">Body fat percentage
                                         : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }}</h5>
                                 </div>
                                 <div class="card-body">
-                                    <h5 class="card-title mb-0 white-color ">Body mass index
+                                    <h5 class="card-title mb-0 white-color " id="body-mass-index">Body mass index
                                         : {{ user.fitness_person_user.body_mass_index|floatformat:-2 }}</h5>
                                 </div>
                             </div>
@@ -246,12 +251,14 @@
                                                                 <span><strong>{{ user_exercise.exercise.name }} | {{ user_exercise.duration }} min</strong></span>
                                                                 <a href='{{ user_exercise.exercise.video_link }}'
                                                                    class="fa fa-pencil"></a>
-                                                                <a href='#' class="fa fa-times"></a>
+                                                                <a href='#' class="fa fa-times"
+                                                                   val="{{ user_exercise.exercise.id }},{{ user_exercise.id }}"></a>
                                                             {% elif user_exercise.exercise.exercise_type == 1 %}
                                                                 <span><strong>{{ user_exercise.exercise.name }} | {{ user_exercise.set_number }}x{{ user_exercise.rep_number }}</strong></span>
                                                                 <a href='{{ user_exercise.exercise.video_link }}'
                                                                    class="fa fa-pencil"></a>
-                                                                <a href='#' class="fa fa-times"></a>
+                                                                <a href='#' class="fa fa-times"
+                                                                   val="{{ user_exercise.exercise.id }},{{ user_exercise.id }}"></a>
                                                             {% endif %}
                                                         </label>
                                                     </li>
@@ -261,6 +268,48 @@
                                     </div>
                                 </div> <!-- /.todo-list -->
                             </div>
+                            <div class="modal fade none-border" id="edit-profile-modal">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                                &times;
+                                            </button>
+                                            <h4 class="modal-title"><strong>Edit Profile</strong></h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="form">
+                                                <div class="form-group">
+                                                    <label class="form-check-label"
+                                                           id="weight-selection-label" for="weight-selection">
+                                                        Weight
+                                                    </label>
+                                                    <input class="form-check-input" type="number" min="1"
+                                                           step="1" name="weight-selection"
+                                                           id="weight-selection" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="exampleFormControlSelect1">Your Goal</label>
+                                                    <select class="form-control" id="purpose-of-use">
+                                                        <option value="0">I want to keep my weight</option>
+                                                        <option value="1">I want to lose weight</option>
+                                                        <option value="2">I want to gain weight</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default waves-effect"
+                                                    data-dismiss="modal">Close
+                                            </button>
+                                            <button type="submit" id="edit-profile-save-button"
+                                                    class="btn btn-success save-event waves-effect waves-light">Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="modal fade none-border" id="add-exercise-modal">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
@@ -270,6 +319,99 @@
                                             </button>
                                             <h4 class="modal-title"><strong>Add New Exercise</strong></h4>
                                             <p>First choose exercise type then choose an exercise</p>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="col-lg-12">
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio"
+                                                                   name="exampleRadios" id="cardio-radio" value="0"
+                                                                   required>
+                                                            <label class="form-check-label" for="exampleRadios1">
+                                                                Cardio Exercise
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio"
+                                                                   name="exampleRadios" id="weight-radio" value="1"
+                                                                   required>
+                                                            <label class="form-check-label" for="exampleRadios2">
+                                                                Weight Exercise
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12">
+                                                <div class="row">
+                                                    <select class="js-example-basic-single" name="exercise_selection"
+                                                            id="exercise-selector" style="width: 450px">
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12">
+                                                <div class="row">
+                                                    <div class="col-lg-3">
+                                                        <label hidden class="form-check-label"
+                                                               id="duration-selection-label" for="duration-selection">
+                                                            Duration
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-lg-9">
+                                                        <input hidden class="form-check-input" type="number" min="1"
+                                                               step="1" name="duration-selection"
+                                                               id="duration-selection" required>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-3">
+                                                        <label hidden class="form-check-label" id="set-selection-label"
+                                                               for="set-selection">
+                                                            Set Number
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <input hidden class="form-check-input" type="number" min="1"
+                                                               step="1" name="set-selection" id="set-selection"
+                                                               required>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-3">
+                                                        <label hidden class="form-check-label" id="rep-selection-label"
+                                                               for="rep-selection">
+                                                            Rep Number
+                                                        </label>
+                                                    </div>
+                                                    <div class="col-lg-3">
+                                                        <input hidden class="form-check-input" type="number"
+                                                               name="rep-selection" id="rep-selection" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default waves-effect"
+                                                    data-dismiss="modal">Close
+                                            </button>
+                                            <button type="submit" id="add-button"
+                                                    class="btn btn-success save-event waves-effect waves-light">Add
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal fade none-border" id="edit-profile-modal">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                                &times;
+                                            </button>
+                                            <h4 class="modal-title"><strong>Edit Profile</strong></h4>
                                         </div>
                                         <div class="modal-body">
                                             <div class="col-lg-12">
@@ -377,10 +519,8 @@
                                                             <span><strong>{{ user_food.food.name }} | (x{{ user_food.portion }})</strong></span>
                                                             <a href='{{ user_food.food.recipe_link }}'
                                                                class="fa fa-pencil"></a>
-                                                            <a href='#' class="fa fa-times"></a>
-                                                            <!--    <button class="fa fa-times" id="delete-food-button"
-                                                                value="{{ user_food.id }},{{ daily_diet_program.id }}"></button>
-                                                    -->
+                                                            <a href='#' class="fa fa-times"
+                                                               val="{{ user_food.id }},{{ daily_diet_program.id }}"></a>
                                                         </label>
                                                     </li>
                                                 {% endfor %}
@@ -703,7 +843,9 @@
                                     jQuery('#daily_burned_calories').text(data.daily_burned_calories);
                                 }
                             });
-                            $("#exercise-checkbox-list").append('<li> <label> <span><strong>' + exercise_name + "| " + duration + " min" + '<strong></span>\n </label> </li>');
+                            $("#exercise-checkbox-list").append('<li> <label> <span><strong>' + exercise_name + "| " + duration + " min" + '<strong></span>\n <a href=\'#\'\n' +
+                                '                                                               class="fa fa-pencil"></a>\n' +
+                                '                                                            <a href=\'#\' class="fa fa-times"></a> </label> </li>');
                         }
                     } else if (jQuery('#weight-radio').is(':checked')) {
                         if (set_number === '') {
@@ -729,7 +871,9 @@
                                     jQuery('#daily_burned_calories').text(data.daily_burned_calories);
                                 }
                             });
-                            $("#exercise-checkbox-list").append('<li> <label><span><strong>' + exercise_name + "| " + set_number + "x" + rep_number + '</strong></span>\n  </label> </li>');
+                            $("#exercise-checkbox-list").append('<li> <label><span><strong>' + exercise_name + "| " + set_number + "x" + rep_number + '</strong></span>\n <a href=\'#\'\n' +
+                                '                                                               class="fa fa-pencil"></a>\n' +
+                                '                                                            <a href=\'#\' class="fa fa-times"></a> </label> </li>');
                         }
                     }
                     alert('Exercise added successfully');
@@ -760,14 +904,17 @@
                             },
                             type: 'POST',
                             success: function (data) {
-                                jQuery('#daily_calorie_intakes').text(data.daily_calorie_intakes);
-                                jQuery('#progress-bar-calorie-intakes').text(data.daily_calorie_intakes);
-                                jQuery('#progress-bar-protein-intake').text(data.daily_protein_intake);
-                                jQuery('#progress-bar-fat-intake').text(data.daily_fat_intake);
-                                jQuery('#progress-bar-carb-intake').text(data.daily_carbohydrate_intake);
+                                console.log(data.daily_fat_intake);
+                                jQuery('#daily_calorie_intakes').text('Intake: ' + data.daily_calorie_intakes + ' cal');
+                                jQuery('#progress-bar-calorie-intakes').text('Intake: ' + data.daily_calorie_intakes + ' cal');
+                                jQuery('#progress-bar-protein-intake').text('Intake:' + data.daily_protein_intake + ' cal');
+                                jQuery('#progress-bar-fat-intake').text('Intake: ' + data.daily_fat_intake + ' cal');
+                                jQuery('#progress-bar-carb-intake').text('Intake: ' + data.daily_carbohydrate_intake + ' cal');
                             }
                         });
-                        $("#food-checkbox-list").append('<li> <label> <span><strong>' + food_name + '| (x' + portion + ')' + '</strong></span>\n </label> </li>')
+                        $("#food-checkbox-list").append('<li> <label> <span><strong>' + food_name + '| (x' + portion + ')' + '</strong></span>\n <a href=\'#\'\n' +
+                            '                                                               class="fa fa-pencil"></a>\n' +
+                            '                                                            <a href=\'#\' class="fa fa-times"></a> </label> </li>')
                         alert('Food added successfully')
                         jQuery('#add-food-modal').modal('hide');
                     }
@@ -824,6 +971,7 @@
                             }
                         }
                     });
+
                 } else if (jQuery('#cardio-radio').is(':checked')) {
                     jQuery('#duration-selection').removeAttr('hidden');
                     jQuery('#duration-selection-label').removeAttr('hidden');
@@ -850,11 +998,46 @@
                     });
                 }
             });
-
-            jQuery("#delete-food-button").click(function () {
-                let id = jQuery('#delete-food-button').val();
-                console.log(id);
+            jQuery('.fa-times').click(function () {
+                var infos = jQuery('.fa-times').attr('val');
+                console.log(infos);
             });
+
+            jQuery(document).ready(function ($) {
+                jQuery('#edit-profile-save-button').click(function () {
+                    let weight = jQuery('#weight-selection').val();
+                    let purpose_of_use = jQuery('#purpose-of-use').val();
+                    let fitness_person_id = {{ fitness_person.id }};
+                    if (weight === '') {
+                        alert('Please fill out weight field');
+                    } else {
+                        jQuery.ajax({
+                            url: '/ajax/edit_fitness_profile/',
+                            data: {
+                                'weight': weight,
+                                'purpose_of_use': purpose_of_use,
+                                'fitness_person_id': fitness_person_id,
+                                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                            },
+                            dataType: 'json',
+                            type: 'POST',
+                            success: function (data) {
+                                if (data) {
+                                    jQuery('#fitness-user-weight').text(data.weight);
+                                    jQuery('#body-fat-percentage').text('Body fat percentage: '+data.body_fat_percentage.toFixed(2));
+                                    jQuery('#body-mass-index').text('Body mass index: '+data.body_mass_index.toFixed(2));
+                                    jQuery('#recommended-calorie-intakes').text('Recommended: '+Math.round(data.required_calorie_intakes)+' cal');
+                                    jQuery('#recommended-protein-intake').text('Recommended: '+Math.round(data.required_protein_intake)+' gr');
+                                    jQuery('#recommended-fat-intake').text('Recommended: '+Math.round(data.required_fat_intake)+' gr');
+                                    jQuery('#recommended-carbohydrate-intake').text('Recommended: '+Math.round(data.required_carbohydrate_intake)+' gr');
+                                }
+                                jQuery('#edit-profile-modal').modal('hide');
+                            }
+                        });
+                    }
+                });
+            });
+
         </script>
     </div>
 {% endblock %}

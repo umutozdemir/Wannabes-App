@@ -26,7 +26,8 @@ class HomeView(View):
             calculations.calculate_daily_burned_calories(current_user.fitness_person_user)
             calculations.calculate_body_fat_percentage(current_user.fitness_person_user)
             current_user.fitness_person_user.save()
-        daily_person_of_current_user = current_user.fitness_person_user.dailyperson_set.filter(
+        fitness_person_of_current_user = current_user.fitness_person_user
+        daily_person_of_current_user = fitness_person_of_current_user.dailyperson_set.filter(
             date_added__date=timezone.now().today().date())[0]
         food_set = Food.objects.all()
         daily_exercise_program_of_current_user = daily_person_of_current_user.exerciseprogram_set.filter(
@@ -34,6 +35,7 @@ class HomeView(View):
         daily_diet_program = daily_person_of_current_user.dietprogram_set.filter(
             date_added__date=timezone.now().today().date())[0]
         context = {'daily_person': daily_person_of_current_user,
+                   'fitness_person': fitness_person_of_current_user,
                    'food_set': food_set,
                    'daily_exercise_program': daily_exercise_program_of_current_user,
                    'daily_diet_program': daily_diet_program}
@@ -165,32 +167,31 @@ def login(request):
 
 
 @method_decorator(login_required, name='dispatch')
-class EditFitnessProfileView(View):
-    template_name = 'pages/edit_fitness_profile.html'
-    form_class = EditFitnessProfileForm
-
-    def get(self, request, *args, **kwargs):
-        edit_fitness_profile_form = self.form_class
-        return render(request, self.template_name, {'form': edit_fitness_profile_form})
-
-    def post(self, request, *args, **kwargs):
-        edit_fitness_profile_form = self.form_class(request.POST)
-        if edit_fitness_profile_form.is_valid():
-            current_fitness_person = request.user.fitness_person_user
-            age = edit_fitness_profile_form.cleaned_data.get('age')
-            weight = edit_fitness_profile_form.cleaned_data.get('weight')
-            height = edit_fitness_profile_form.cleaned_data.get('height')
-            current_fitness_person.age = age
-            current_fitness_person.weight = weight
-            current_fitness_person.height = height
-            calculations.calculate_daily_required_calorie_intakes(current_fitness_person)
-            calculations.calculate_daily_macros(current_fitness_person)
-            calculations.calculate_body_mass_index(current_fitness_person)
-            calculations.calculate_daily_burned_calories(current_fitness_person)
-            calculations.calculate_body_fat_percentage(current_fitness_person)
-            current_fitness_person.save()
-            return redirect('diary')
-
+# class EditFitnessProfileView(View):
+#     template_name = 'pages/edit_fitness_profile.html'
+#     form_class = EditFitnessProfileForm
+#
+#     def get(self, request, *args, **kwargs):
+#         edit_fitness_profile_form = self.form_class
+#         return render(request, self.template_name, {'form': edit_fitness_profile_form})
+#
+#     def post(self, request, *args, **kwargs):
+#         edit_fitness_profile_form = self.form_class(request.POST)
+#         if edit_fitness_profile_form.is_valid():
+#             current_fitness_person = request.user.fitness_person_user
+#             age = edit_fitness_profile_form.cleaned_data.get('age')
+#             weight = edit_fitness_profile_form.cleaned_data.get('weight')
+#             height = edit_fitness_profile_form.cleaned_data.get('height')
+#             current_fitness_person.age = age
+#             current_fitness_person.weight = weight
+#             current_fitness_person.height = height
+#             calculations.calculate_daily_required_calorie_intakes(current_fitness_person)
+#             calculations.calculate_daily_macros(current_fitness_person)
+#             calculations.calculate_body_mass_index(current_fitness_person)
+#             calculations.calculate_daily_burned_calories(current_fitness_person)
+#             calculations.calculate_body_fat_percentage(current_fitness_person)
+#             current_fitness_person.save()
+#             return redirect('diary')
 
 @method_decorator(login_required, name='dispatch')
 class AddFoodView(View):
@@ -291,5 +292,32 @@ class FoodSelection(View):
         foods_to_show_in_selection = list(Food.objects.annotate(text=F('name')).values('id', 'text'))
         data = {
             'foods_to_show_in_selection': foods_to_show_in_selection
+        }
+        return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+class EditFitnessProfile(View):
+
+    def post(self, request, *args, **kwargs):
+        fitness_person_id = request.POST.get('fitness_person_id', int)
+        weight = int(request.POST.get('weight', int))
+        purpose_of_use = int(request.POST.get('purpose_of_use', int))
+        fitness_person = FitnessPerson.objects.get(pk=fitness_person_id)
+        fitness_person.weight = weight
+        fitness_person.purpose_of_use = purpose_of_use
+        fitness_person.save()
+        calculations.calculate_daily_required_calorie_intakes(fitness_person)
+        calculations.calculate_daily_macros(fitness_person)
+        calculations.calculate_body_mass_index(fitness_person)
+        calculations.calculate_body_fat_percentage(fitness_person)
+        fitness_person.save()
+        data = {
+            'weight': fitness_person.weight,
+            'body_mass_index': fitness_person.body_mass_index,
+            'body_fat_percentage': fitness_person.body_fat_percentage,
+            'required_calorie_intakes': fitness_person.daily_required_calorie_intakes,
+            'required_protein_intake': fitness_person.required_protein,
+            'required_fat_intake': fitness_person.required_fat,
+            'required_carbohydrate_intake': fitness_person.required_carbohydrate
         }
         return HttpResponse(json.dumps(data), content_type="application/json")
