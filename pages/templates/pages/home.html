@@ -527,7 +527,7 @@
                                             </ul>
                                         </div>
                                     </div>
-                                </div> <!-- /.todo-list -->
+                                </div>
                             </div>
                             <div class="modal fade none-border" id="add-food-modal">
                                 <div class="modal-dialog">
@@ -839,6 +839,7 @@
                                 },
                                 type: 'POST',
                                 success: function (data) {
+                                    console.log(data.daily_burned_calories);
                                     jQuery('#daily_burned_calories').text(data.daily_burned_calories);
                                 }
                             });
@@ -960,8 +961,9 @@
                         dataType: 'json',
                         success: function (data) {
                             if (data.exercises_to_show_in_selection) {
-                                jQuery('.js-example-basic-single').empty();
-                                jQuery('.js-example-basic-single').select2({
+                                console.log('weightt');
+                                jQuery('#exercise-selector').empty();
+                                jQuery('#exercise-selector').select2({
                                     maximumSelectionLength: 5,
                                     data: data.exercises_to_show_in_selection,
                                 });
@@ -985,8 +987,9 @@
                         dataType: 'json',
                         success: function (data) {
                             if (data.exercises_to_show_in_selection) {
-                                jQuery('.js-example-basic-single').empty();
-                                jQuery('.js-example-basic-single').select2({
+                                console.log('cardiooo')
+                                jQuery('#exercise-selector').empty();
+                                jQuery('#exercise-selector').select2({
                                     maximumSelectionLength: 5,
                                     data: data.exercises_to_show_in_selection,
                                 });
@@ -1028,6 +1031,7 @@
                                     jQuery('#recommended-fat-intake').text('Recommended: '+Math.round(data.required_fat_intake)+' gr');
                                     jQuery('#recommended-carbohydrate-intake').text('Recommended: '+Math.round(data.required_carbohydrate_intake)+' gr');
                                 }
+                                alert('Profile updated successfully');
                                 jQuery('#edit-profile-modal').modal('hide');
                             }
                         });

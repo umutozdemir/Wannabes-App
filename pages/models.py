@@ -65,6 +65,10 @@ class Exercise(models.Model):
 
 class DailyPerson(models.Model):
     fitness_user = models.ForeignKey(FitnessPerson, on_delete=models.CASCADE)
+    # weight should be in kg.
+    weight = models.FloatField(default=0)
+    body_fat_percentage = models.FloatField(null=True, blank=True)
+    body_mass_index = models.FloatField(null=True, blank=True)
     daily_calorie_intakes = models.IntegerField(default=0, blank=True)
     daily_burned_calories = models.IntegerField(default=0, blank=True)
     daily_protein_intake = models.IntegerField(default=0, blank=True)

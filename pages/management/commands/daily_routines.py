@@ -11,6 +11,9 @@ class Command(BaseCommand):
         for fitness_person in all_fitness_persons:
             daily_person = DailyPerson.objects.create(fitness_user=fitness_person)
             daily_person.daily_burned_calories = calculations.calculate_basal_metabolic_rate()
+            daily_person.weight = fitness_person.weight
+            daily_person.body_mass_index = fitness_person.body_mass_index
+            daily_person.body_fat_percentage = fitness_person.body_fat_percentage
             daily_person.save()
             DietProgram.objects.create(daily_person=daily_person)
             ExerciseProgram.objects.create(daily_person=daily_person)

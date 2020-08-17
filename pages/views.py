@@ -122,12 +122,10 @@ class AddExerciseView(View):
                 exercise=Exercise.objects.get(pk=exercise_id),
                 duration=duration,
                 how_many_calorie_burn=how_many_calorie_burn)
-            daily_person_of_current_user.save()
             daily_exercise_program_of_current_user.save()
-            calculations.calculate_daily_required_calorie_intakes(current_user)
-            calculations.calculate_daily_macros(current_user)
-            calculations.calculate_body_mass_index(current_user)
-            calculations.calculate_daily_burned_calories(current_user)
+            calculations.calculate_daily_burned_calories(current_user, daily_person_of_current_user,
+                                                         daily_exercise_program_of_current_user)
+            daily_person_of_current_user.save()
             current_user.save()
             data = {
                 'daily_burned_calories': daily_person_of_current_user.daily_burned_calories,
@@ -151,12 +149,10 @@ class AddExerciseView(View):
                 set_number=set_number,
                 rep_number=rep_number,
                 how_many_calorie_burn=how_many_calorie_burn)
-            daily_person_of_current_user.save()
             daily_exercise_program_of_current_user.save()
-            calculations.calculate_daily_required_calorie_intakes(current_user)
-            calculations.calculate_daily_macros(current_user)
-            calculations.calculate_body_mass_index(current_user)
-            calculations.calculate_daily_burned_calories(current_user)
+            calculations.calculate_daily_burned_calories(current_user, daily_person_of_current_user,
+                                                         daily_exercise_program_of_current_user)
+            daily_person_of_current_user.save()
             current_user.save()
             data = {
                 'daily_burned_calories': daily_person_of_current_user.daily_burned_calories,
@@ -185,12 +181,8 @@ class AddFoodView(View):
         daily_person_of_current_user.daily_fat_intake += (food_to_add.fat_amount * portion)
         daily_person_of_current_user.daily_carbohydrate_intake += (food_to_add.carbohydrate_amount * portion)
         daily_person_of_current_user.daily_calorie_intakes += (food_to_add.calorie * portion)
-        daily_person_of_current_user.save()
         daily_diet_program.save()
-        calculations.calculate_daily_required_calorie_intakes(current_user)
-        calculations.calculate_daily_macros(current_user)
-        calculations.calculate_body_mass_index(current_user)
-        calculations.calculate_daily_burned_calories(current_user)
+        daily_person_of_current_user.save()
         current_user.save()
         data = {
             'daily_calorie_intakes': daily_person_of_current_user.daily_calorie_intakes,
@@ -273,16 +265,19 @@ class EditFitnessProfile(View):
 
     def post(self, request, *args, **kwargs):
         fitness_person_id = request.POST.get('fitness_person_id', int)
+        daily_person_id = request.POST.get('daily_person_id', int)
         weight = int(request.POST.get('weight', int))
         purpose_of_use = int(request.POST.get('purpose_of_use', int))
         fitness_person = FitnessPerson.objects.get(pk=fitness_person_id)
         fitness_person.weight = weight
         fitness_person.purpose_of_use = purpose_of_use
         fitness_person.save()
+        daily_person_of_current_user = DailyPerson.objects.get(pk=daily_person_id)
         calculations.calculate_daily_required_calorie_intakes(fitness_person)
         calculations.calculate_daily_macros(fitness_person)
-        calculations.calculate_body_mass_index(fitness_person)
-        calculations.calculate_body_fat_percentage(fitness_person)
+        daily_person_of_current_user.body_mass_index = calculations.calculate_body_mass_index(fitness_person)
+        daily_person_of_current_user.body_fat_percentage = calculations.calculate_body_fat_percentage(fitness_person)
+        daily_person_of_current_user.save()
         fitness_person.save()
         data = {
             'weight': fitness_person.weight,
