@@ -36,7 +36,8 @@
                                 <div class="stat-content">
                                     <div class="text-left dib">
                                         <div class="stat-text"><span
-                                               id="fitness-user-weight" class="count">{{ user.fitness_person_user.weight }}</span> kg
+                                                id="fitness-user-weight"
+                                                class="count">{{ user.fitness_person_user.weight }}</span> kg
                                         </div>
                                         <div class="stat-heading">Weight</div>
                                         <button type="submit" class="btn btn-success waves-effect waves-light"
@@ -123,7 +124,7 @@
                                                 : {{ daily_person.daily_calorie_intakes|floatformat:-2 }} cal
                                             </div>
                                         {% else %}
-                                            <div class="por-txt">Intake : 0 cal</div>
+                                            <div class="por-txt" id="progress-bar-calorie-intakes">Intake : 0 cal</div>
                                         {% endif %}
                                         <div class="progress mb-2" style="height: 5px;">
                                             <div class="progress-bar bg-flat-color-1" role="progressbar"
@@ -143,7 +144,7 @@
                                                 : {{ daily_person.daily_protein_intake|floatformat:-2 }} gr
                                             </div>
                                         {% else %}
-                                            <div class="por-txt">Intake : 0 gr</div>
+                                            <div class="por-txt" id="progress-bar-protein-intake">Intake : 0 gr</div>
                                         {% endif %}
                                         <div class="progress mb-2" style="height: 5px;">
                                             <div class="progress-bar bg-flat-color-2" role="progressbar"
@@ -164,7 +165,7 @@
                                                 : {{ daily_person.daily_fat_intake|floatformat:-2 }} gr
                                             </div>
                                         {% else %}
-                                            <div class="por-txt">Intake : 0 gr</div>
+                                            <div class="por-txt" id="progress-bar-fat-intake">Intake : 0 gr</div>
                                         {% endif %}
                                         <div class="progress mb-2" style="height: 5px;">
                                             <div class="progress-bar bg-flat-color-3" role="progressbar"
@@ -184,7 +185,7 @@
                                                 gr
                                             </div>
                                         {% else %}
-                                            <div class="por-txt">Intake : 0 gr</div>
+                                            <div class="por-txt" id="progress-bar-carb-intake">Intake : 0 gr</div>
                                         {% endif %}
                                         <div class="progress mb-2" style="height: 5px;">
                                             <div class="progress-bar bg-flat-color-4" role="progressbar"
@@ -216,7 +217,8 @@
                         <div class="col-lg-4">
                             <div class="card bg-flat-color-3  ">
                                 <div class="card-body">
-                                    <h5 class="card-title m-0  white-color " id="body-fat-percentage">Body fat percentage
+                                    <h5 class="card-title m-0  white-color " id="body-fat-percentage">Body fat
+                                        percentage
                                         : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }}</h5>
                                 </div>
                                 <div class="card-body">
@@ -252,13 +254,13 @@
                                                                 <a href='{{ user_exercise.exercise.video_link }}'
                                                                    class="fa fa-pencil"></a>
                                                                 <a href='#' class="fa fa-times"
-                                                                   val="{{ user_exercise.exercise.id }},{{ user_exercise.id }}"></a>
+                                                                   val="{{ user_exercise.id }}"></a>
                                                             {% elif user_exercise.exercise.exercise_type == 1 %}
                                                                 <span><strong>{{ user_exercise.exercise.name }} | {{ user_exercise.set_number }}x{{ user_exercise.rep_number }}</strong></span>
                                                                 <a href='{{ user_exercise.exercise.video_link }}'
                                                                    class="fa fa-pencil"></a>
                                                                 <a href='#' class="fa fa-times"
-                                                                   val="{{ user_exercise.exercise.id }},{{ user_exercise.id }}"></a>
+                                                                   val="{{ user_exercise.id }}"></a>
                                                             {% endif %}
                                                         </label>
                                                     </li>
@@ -822,6 +824,7 @@
                     let duration = $('#duration-selection').val();
                     let set_number = $('#set-selection').val();
                     let rep_number = $('#rep-selection').val();
+                    let user_exercise_id;
                     if (jQuery('#cardio-radio').is(':checked')) {
                         if (duration === '') {
                             alert('Please fill out duration field')
@@ -840,12 +843,13 @@
                                 type: 'POST',
                                 success: function (data) {
                                     console.log(data.daily_burned_calories);
+                                    user_exercise_id = data.user_exercise_id;
                                     jQuery('#daily_burned_calories').text(data.daily_burned_calories);
                                 }
                             });
                             $("#exercise-checkbox-list").append('<li> <label> <span><strong>' + exercise_name + "| " + duration + " min" + '<strong></span>\n <a href=\'#\'\n' +
                                 '                                                               class="fa fa-pencil"></a>\n' +
-                                '                                                            <a href=\'#\' class="fa fa-times"></a> </label> </li>');
+                                '                                                            <a href=\'#\' val="exercise_id,user_exercise_id" class="fa fa-times"></a> </label> </li>');
                         }
                     } else if (jQuery('#weight-radio').is(':checked')) {
                         if (set_number === '') {
@@ -867,12 +871,13 @@
                                 },
                                 type: 'POST',
                                 success: function (data) {
+                                    user_exercise_id = data.user_exercise_id;
                                     jQuery('#daily_burned_calories').text(data.daily_burned_calories);
                                 }
                             });
                             $("#exercise-checkbox-list").append('<li> <label><span><strong>' + exercise_name + "| " + set_number + "x" + rep_number + '</strong></span>\n <a href=\'#\'\n' +
                                 '                                                               class="fa fa-pencil"></a>\n' +
-                                '                                                            <a href=\'#\' class="fa fa-times"></a> </label> </li>');
+                                '                                                             <a href=\'#\' val="exercise_id,user_exercise_id" class="fa fa-times"></a>  </label> </li>');
                         }
                     }
                     alert('Exercise added successfully');
@@ -888,6 +893,7 @@
                     let daily_person_id = {{ daily_person.id }};
                     let daily_diet_program_id = {{ daily_diet_program.id }};
                     let portion = $('#portion-selection').val();
+                    let cell = jQuery('#cellPaiChart').data();
                     if (portion === '') {
                         alert('Please fill out portion field.')
                     } else {
@@ -961,7 +967,6 @@
                         dataType: 'json',
                         success: function (data) {
                             if (data.exercises_to_show_in_selection) {
-                                console.log('weightt');
                                 jQuery('#exercise-selector').empty();
                                 jQuery('#exercise-selector').select2({
                                     maximumSelectionLength: 5,
@@ -987,7 +992,6 @@
                         dataType: 'json',
                         success: function (data) {
                             if (data.exercises_to_show_in_selection) {
-                                console.log('cardiooo')
                                 jQuery('#exercise-selector').empty();
                                 jQuery('#exercise-selector').select2({
                                     maximumSelectionLength: 5,
@@ -998,9 +1002,30 @@
                     });
                 }
             });
+
+            // delete exercise.
             jQuery('.fa-times').click(function () {
-                var infos = jQuery('.fa-times').attr('val');
-                console.log(infos);
+                let user_exercise_id = jQuery(this).attr('val');
+                let daily_person_id = {{ daily_person.id }};
+                let daily_exercise_program_id = {{ daily_exercise_program.id }};
+                jQuery.ajax({
+                    url: '/ajax/delete_exercise/',
+                    data: {
+                        'user_exercise_id': user_exercise_id,
+                        'daily_person_id': daily_person_id,
+                        'daily_exercise_program_id': daily_exercise_program_id,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    },
+                    dataType: 'json',
+                    type: 'POST',
+                    success: function (data) {
+                        if(data){
+                          jQuery('#daily_burned_calories').text(data.daily_burned_calories);
+                          alert(data.message);
+                        }
+                    }
+                });
+                jQuery(this).closest('.li').remove();
             });
 
             jQuery(document).ready(function ($) {
@@ -1008,6 +1033,7 @@
                     let weight = jQuery('#weight-selection').val();
                     let purpose_of_use = jQuery('#purpose-of-use').val();
                     let fitness_person_id = {{ fitness_person.id }};
+                    let daily_person_id = {{ daily_person.id }};
                     if (weight === '') {
                         alert('Please fill out weight field');
                     } else {
@@ -1017,6 +1043,7 @@
                                 'weight': weight,
                                 'purpose_of_use': purpose_of_use,
                                 'fitness_person_id': fitness_person_id,
+                                'daily_person_id': daily_person_id,
                                 'csrfmiddlewaretoken': '{{ csrf_token }}',
                             },
                             dataType: 'json',
@@ -1024,14 +1051,14 @@
                             success: function (data) {
                                 if (data) {
                                     jQuery('#fitness-user-weight').text(data.weight);
-                                    jQuery('#body-fat-percentage').text('Body fat percentage: '+data.body_fat_percentage.toFixed(2));
-                                    jQuery('#body-mass-index').text('Body mass index: '+data.body_mass_index.toFixed(2));
-                                    jQuery('#recommended-calorie-intakes').text('Recommended: '+Math.round(data.required_calorie_intakes)+' cal');
-                                    jQuery('#recommended-protein-intake').text('Recommended: '+Math.round(data.required_protein_intake)+' gr');
-                                    jQuery('#recommended-fat-intake').text('Recommended: '+Math.round(data.required_fat_intake)+' gr');
-                                    jQuery('#recommended-carbohydrate-intake').text('Recommended: '+Math.round(data.required_carbohydrate_intake)+' gr');
+                                    jQuery('#body-fat-percentage').text('Body fat percentage: ' + data.body_fat_percentage.toFixed(2));
+                                    jQuery('#body-mass-index').text('Body mass index: ' + data.body_mass_index.toFixed(2));
+                                    jQuery('#recommended-calorie-intakes').text('Recommended: ' + Math.round(data.required_calorie_intakes) + ' cal');
+                                    jQuery('#recommended-protein-intake').text('Recommended: ' + Math.round(data.required_protein_intake) + ' gr');
+                                    jQuery('#recommended-fat-intake').text('Recommended: ' + Math.round(data.required_fat_intake) + ' gr');
+                                    jQuery('#recommended-carbohydrate-intake').text('Recommended: ' + Math.round(data.required_carbohydrate_intake) + ' gr');
+                                    alert(data.message);
                                 }
-                                alert('Profile updated successfully');
                                 jQuery('#edit-profile-modal').modal('hide');
                             }
                         });
