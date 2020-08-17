@@ -11,13 +11,18 @@ from pages.models import Food
 
 file_path = 'food_data.csv'
 
+all_foods = {}
+food_set = Food.objects.all()
+for food in food_set:
+    all_foods[food.name] = food.id
+
 try:
     food_data_csv = open(file_path, 'r')
     # iterate over food_data.csv line by line.
     for line in food_data_csv:
         food_data = line.split(';')
         # food_data is an array that split the line with ';'
-        # food_data[0] -> id of the food.
+        # food_data[0] -> id of the food (not the same id as in database).
         # food_data[1] -> name of the food.
         # food_data[2] -> food group.
         # food_data[3] -> calorie of food in 100 gr.
@@ -26,7 +31,7 @@ try:
         # food_data[6] -> amount of carbohydrate(gr) in 100 gr.
 
         # if the food exist in the database then pass.
-        if Food.objects.filter(name=food_data[1]):
+        if food_data[1] in all_foods.keys():
             pass
         # if the food does not exist in the database then create and save that food to the database.
         else:

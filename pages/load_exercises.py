@@ -11,13 +11,18 @@ from pages.models import Exercise
 
 file_path = 'exercises.txt'
 
+all_exercises = {}
+exercise_set = Exercise.objects.all()
+for exercise in exercise_set:
+    all_exercises[exercise.name] = exercise.id
+
 try:
     exercises_txt = open(file_path, 'r')
     # iterate over exercises.txt line by line.
     for line in exercises_txt:
         exercise_name = line.split(',')[0]
         # if the exercise exist in the database then pass.
-        if Exercise.objects.filter(name=exercise_name):
+        if exercise_name in all_exercises.keys():
             pass
         # if the exercise does not exist in the database then create and save that exercise to the database.
         else:

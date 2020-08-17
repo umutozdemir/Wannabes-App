@@ -839,7 +839,6 @@
                                 },
                                 type: 'POST',
                                 success: function (data) {
-                                    console.log(data.daily_burned_calories);
                                     jQuery('#daily_burned_calories').text(data.daily_burned_calories);
                                 }
                             });
@@ -867,7 +866,6 @@
                                 },
                                 type: 'POST',
                                 success: function (data) {
-                                    console.log(data.daily_burned_calories);
                                     jQuery('#daily_burned_calories').text(data.daily_burned_calories);
                                 }
                             });
@@ -904,12 +902,11 @@
                             },
                             type: 'POST',
                             success: function (data) {
-                                console.log(data.daily_fat_intake);
-                                jQuery('#daily_calorie_intakes').text('Intake: ' + data.daily_calorie_intakes + ' cal');
-                                jQuery('#progress-bar-calorie-intakes').text('Intake: ' + data.daily_calorie_intakes + ' cal');
-                                jQuery('#progress-bar-protein-intake').text('Intake:' + data.daily_protein_intake + ' cal');
-                                jQuery('#progress-bar-fat-intake').text('Intake: ' + data.daily_fat_intake + ' cal');
-                                jQuery('#progress-bar-carb-intake').text('Intake: ' + data.daily_carbohydrate_intake + ' cal');
+                                jQuery('#daily_calorie_intakes').text(data.daily_calorie_intakes);
+                                jQuery('#progress-bar-calorie-intakes').text('Intake: ' + Math.round(data.daily_calorie_intakes) + ' cal');
+                                jQuery('#progress-bar-protein-intake').text('Intake:' + Math.round(data.daily_protein_intake) + ' cal');
+                                jQuery('#progress-bar-fat-intake').text('Intake: ' + Math.round(data.daily_fat_intake) + ' cal');
+                                jQuery('#progress-bar-carb-intake').text('Intake: ' + Math.round(data.daily_carbohydrate_intake) + ' cal');
                             }
                         });
                         $("#food-checkbox-list").append('<li> <label> <span><strong>' + food_name + '| (x' + portion + ')' + '</strong></span>\n <a href=\'#\'\n' +

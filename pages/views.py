@@ -1,5 +1,7 @@
 import json
 
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
 from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
@@ -12,13 +14,15 @@ from pages import calculations
 from django.http import HttpResponse
 
 
-@method_decorator(login_required, name='dispatch')
-class HomeView(View):
+class HomeView(LoginRequiredMixin, View):
+    """ Display homepage with required data."""
     template_name = 'pages/home.html'
+    login_url = 'login'
+    redirect_field_name = ''
 
     def get(self, request, *args, **kwargs):
         current_user = request.user
-        # if an user login for the first time then do calculations.
+        # if the user login for first time then do calculations.
         if current_user.date_joined.date() == timezone.now().today().date():
             calculations.calculate_daily_required_calorie_intakes(current_user.fitness_person_user)
             calculations.calculate_daily_macros(current_user.fitness_person_user)
@@ -29,20 +33,19 @@ class HomeView(View):
         fitness_person_of_current_user = current_user.fitness_person_user
         daily_person_of_current_user = fitness_person_of_current_user.dailyperson_set.filter(
             date_added__date=timezone.now().today().date())[0]
-        food_set = Food.objects.all()
         daily_exercise_program_of_current_user = daily_person_of_current_user.exerciseprogram_set.filter(
             date_added__date=timezone.now().today().date())[0]
         daily_diet_program = daily_person_of_current_user.dietprogram_set.filter(
             date_added__date=timezone.now().today().date())[0]
         context = {'daily_person': daily_person_of_current_user,
                    'fitness_person': fitness_person_of_current_user,
-                   'food_set': food_set,
                    'daily_exercise_program': daily_exercise_program_of_current_user,
                    'daily_diet_program': daily_diet_program}
         return render(request, self.template_name, context)
 
 
 class SignupView(View):
+    """ User signup view. """
     form_class = CustomUserForm
     template_name = 'registration/signup.html'
 
@@ -54,30 +57,30 @@ class SignupView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             email = form.cleaned_data.get('email')
-            print(email)
             if User.objects.filter(email=email).exists():
-                raise ValidationError("Email exists")
-            form.save()
-            gender_choice = form.cleaned_data.get('gender_choice')
-            age = form.cleaned_data.get('age')
-            weight = form.cleaned_data.get('weight')
-            height = form.cleaned_data.get('height')
-            purpose_of_use = form.cleaned_data.get('purpose_of_use')
-            new_user_username = form.cleaned_data.get('username')
-            new_user = User.objects.get(username=new_user_username)
-            fitness_person = FitnessPerson(user=new_user, gender=gender_choice,
-                                           age=age, weight=weight, height=height, purpose_of_use=purpose_of_use)
-            fitness_person.save()
-            daily_person = DailyPerson.objects.create(fitness_user=fitness_person)
-            DietProgram.objects.create(daily_person=daily_person)
-            ExerciseProgram.objects.create(daily_person=daily_person)
-            fitness_person.save()
-            return redirect('home')
+                messages.error(request, 'This email is already registered.')
+            else:
+                form.save()
+                gender_choice = form.cleaned_data.get('gender_choice')
+                age = form.cleaned_data.get('age')
+                weight = form.cleaned_data.get('weight')
+                height = form.cleaned_data.get('height')
+                purpose_of_use = form.cleaned_data.get('purpose_of_use')
+                new_user_username = form.cleaned_data.get('username')
+                new_user = User.objects.get(username=new_user_username)
+                fitness_person = FitnessPerson(user=new_user, gender=gender_choice,
+                                               age=age, weight=weight, height=height, purpose_of_use=purpose_of_use)
+                fitness_person.save()
+                daily_person = DailyPerson.objects.create(fitness_user=fitness_person)
+                DietProgram.objects.create(daily_person=daily_person)
+                ExerciseProgram.objects.create(daily_person=daily_person)
+                fitness_person.save()
+                return redirect('home')
         else:
+            messages.error(request, 'This username is already taken.')
             return redirect('signup')
 
 
-@method_decorator(login_required, name='dispatch')
 class DiaryView(View):
     template_name = 'pages/diary.html'
 
@@ -97,8 +100,8 @@ class DiaryView(View):
         return render(request, self.template_name, context)
 
 
-@method_decorator(login_required, name='dispatch')
 class AddExerciseView(View):
+    """ This view works with AJAX. User add exercise via this view. """
 
     def post(self, request, *args, **kwargs):
         exercise_type = int(request.POST.get('exercise_type', int))
@@ -162,39 +165,8 @@ class AddExerciseView(View):
             return HttpResponse(json.dumps(data), content_type="application/json")
 
 
-def login(request):
-    return render(request, 'registration/login.html')
-
-
-@method_decorator(login_required, name='dispatch')
-# class EditFitnessProfileView(View):
-#     template_name = 'pages/edit_fitness_profile.html'
-#     form_class = EditFitnessProfileForm
-#
-#     def get(self, request, *args, **kwargs):
-#         edit_fitness_profile_form = self.form_class
-#         return render(request, self.template_name, {'form': edit_fitness_profile_form})
-#
-#     def post(self, request, *args, **kwargs):
-#         edit_fitness_profile_form = self.form_class(request.POST)
-#         if edit_fitness_profile_form.is_valid():
-#             current_fitness_person = request.user.fitness_person_user
-#             age = edit_fitness_profile_form.cleaned_data.get('age')
-#             weight = edit_fitness_profile_form.cleaned_data.get('weight')
-#             height = edit_fitness_profile_form.cleaned_data.get('height')
-#             current_fitness_person.age = age
-#             current_fitness_person.weight = weight
-#             current_fitness_person.height = height
-#             calculations.calculate_daily_required_calorie_intakes(current_fitness_person)
-#             calculations.calculate_daily_macros(current_fitness_person)
-#             calculations.calculate_body_mass_index(current_fitness_person)
-#             calculations.calculate_daily_burned_calories(current_fitness_person)
-#             calculations.calculate_body_fat_percentage(current_fitness_person)
-#             current_fitness_person.save()
-#             return redirect('diary')
-
-@method_decorator(login_required, name='dispatch')
 class AddFoodView(View):
+    """ This view works with AJAX. User add food via this view. """
 
     def post(self, request, *args, **kwargs):
         # current_user is fitness person of the current user.
@@ -230,7 +202,6 @@ class AddFoodView(View):
         return HttpResponse(json.dumps(data), content_type="application/json")
 
 
-@method_decorator(login_required, name='dispatch')
 class DeleteFood(View):
     template_name = 'pages/delete_food.html'
 
@@ -253,7 +224,6 @@ class DeleteFood(View):
         return redirect('diary')
 
 
-@method_decorator(login_required, name='dispatch')
 class DeleteExercise(View):
     template_name = 'pages/delete_exercise.html'
 
@@ -275,6 +245,7 @@ class DeleteExercise(View):
 
 
 class ExerciseSelection(View):
+    """ This view works with AJAX. Loads appropriate exercises to select2. """
 
     def get(self, request, *args, **kwargs):
         exercise_type = request.GET.get('exercise_type', int)
@@ -287,6 +258,7 @@ class ExerciseSelection(View):
 
 
 class FoodSelection(View):
+    """ This view works with AJAX. Loads appropriate foods to select2. """
 
     def get(self, request, *args, **kwargs):
         foods_to_show_in_selection = list(Food.objects.annotate(text=F('name')).values('id', 'text'))
@@ -297,6 +269,7 @@ class FoodSelection(View):
 
 
 class EditFitnessProfile(View):
+    """ This view works with AJAX. User can edit its profile via this view. """
 
     def post(self, request, *args, **kwargs):
         fitness_person_id = request.POST.get('fitness_person_id', int)
