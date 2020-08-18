@@ -16,6 +16,7 @@ def calculate_body_mass_index(fitness_person):
     fitness_person.body_mass_index = fitness_person.weight / (fitness_person.height * fitness_person.height)
     return fitness_person.body_mass_index
 
+
 def calculate_daily_required_calorie_intakes(fitness_person):
     basal_metabolic_rate = calculate_basal_metabolic_rate(fitness_person)
     if fitness_person.purpose_of_use == FitnessPerson.KEEP_WEIGHT:
@@ -31,18 +32,6 @@ def calculate_daily_macros(fitness_person):
         fitness_person.required_carbohydrate = fitness_person.daily_required_calorie_intakes * 45 / 450
         fitness_person.required_protein = fitness_person.daily_required_calorie_intakes * 30 / 400
         fitness_person.required_fat = fitness_person.daily_required_calorie_intakes * 25 / 930
-
-
-def calculate_daily_burned_calories(fitness_person, daily_person,daily_exercise_program):
-    current_day = timezone.now().today().date()
-    exercises_did_today = daily_exercise_program.userexercise_set.all()
-    basal_metabolic_rate = calculate_basal_metabolic_rate(fitness_person)
-    sum_of_burned_calories = basal_metabolic_rate
-    for exercise in exercises_did_today:
-        sum_of_burned_calories += exercise.how_many_calorie_burn
-    daily_person.daily_burned_calories = sum_of_burned_calories
-    daily_person.save()
-    fitness_person.save()
 
 
 def calculate_basal_metabolic_rate(fitness_person):

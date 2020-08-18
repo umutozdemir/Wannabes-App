@@ -217,13 +217,81 @@
                         <div class="col-lg-4">
                             <div class="card bg-flat-color-3  ">
                                 <div class="card-body">
-                                    <h5 class="card-title m-0  white-color " id="body-fat-percentage">Body fat
-                                        percentage
-                                        : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }}</h5>
+                                    <!-- gender->0 means user is male , gender->1 means user is female -->
+                                    {% if user.fitness_person_user.gender == 0 %}
+                                        {% if user.fitness_person_user.body_fat_percentage < 6 %}
+                                            <h5 class="card-title m-0  white-color " id="body-fat-percentage">Body fat
+                                                percentage
+                                                : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }} ->
+                                                Essential fat</h5>
+                                        {% elif user.fitness_person_user.body_fat_percentage < 14 %}
+                                            <h5 class="card-title m-0  white-color " id="body-fat-percentage">Body fat
+                                                percentage
+                                                : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }} ->
+                                                Athletes</h5>
+                                        {% elif user.fitness_person_user.body_fat_percentage < 18 %}
+                                            <h5 class="card-title m-0  white-color " id="body-fat-percentage">Body fat
+                                                percentage
+                                                : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }} ->
+                                                Fitness</h5>
+                                        {% elif user.fitness_person_user.body_fat_percentage < 25 %}
+                                            <h5 class="card-title m-0  white-color " id="body-fat-percentage">Body fat
+                                                percentage
+                                                : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }} ->
+                                                Acceptable</h5>
+                                        {% else %}
+                                            <h5 class="card-title m-0  white-color " id="body-fat-percentage">Body fat
+                                                percentage
+                                                : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }} ->
+                                                <strong>Obesity</strong></h5>
+                                        {% endif %}
+                                    {% elif user.fitness_person_user.gender == 1 %}
+                                        {% if user.fitness_person_user.body_fat_percentage < 14 %}
+                                            <h5 class="card-title m-0  white-color " id="body-fat-percentage">Body fat
+                                                percentage
+                                                : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }} ->
+                                                Essential fat</h5>
+                                        {% elif user.fitness_person_user.body_fat_percentage < 21 %}
+                                            <h5 class="card-title m-0  white-color " id="body-fat-percentage">Body fat
+                                                percentage
+                                                : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }} ->
+                                                Athletes</h5>
+                                        {% elif user.fitness_person_user.body_fat_percentage < 25 %}
+                                            <h5 class="card-title m-0  white-color " id="body-fat-percentage">Body fat
+                                                percentage
+                                                : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }} ->
+                                                Fitness</h5>
+                                        {% elif user.fitness_person_user.body_fat_percentage < 32 %}
+                                            <h5 class="card-title m-0  white-color " id="body-fat-percentage">Body fat
+                                                percentage
+                                                : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }} ->
+                                                Acceptable</h5>
+                                        {% else %}
+                                            <h5 class="card-title m-0  white-color " id="body-fat-percentage">Body fat
+                                                percentage
+                                                : {{ user.fitness_person_user.body_fat_percentage|floatformat:-2 }} ->
+                                                <strong>Obesity</strong></h5>
+                                        {% endif %}
+                                    {% endif %}
                                 </div>
                                 <div class="card-body">
-                                    <h5 class="card-title mb-0 white-color " id="body-mass-index">Body mass index
-                                        : {{ user.fitness_person_user.body_mass_index|floatformat:-2 }}</h5>
+                                    {% if user.fitness_person_user.body_mass_index < 18.5 %}
+                                        <h5 class="card-title mb-0 white-color " id="body-mass-index">Body mass index
+                                            : {{ user.fitness_person_user.body_mass_index|floatformat:-2 }} ->
+                                            Underweight</h5>
+                                    {% elif user.fitness_person_user.body_mass_index < 25.0 %}
+                                        <h5 class="card-title mb-0 white-color " id="body-mass-index">Body mass index
+                                            : {{ user.fitness_person_user.body_mass_index|floatformat:-2 }} -> Healty
+                                            Weight</h5>
+                                    {% elif user.fitness_person_user.body_mass_index < 30.0 %}
+                                        <h5 class="card-title mb-0 white-color " id="body-mass-index">Body mass index
+                                            : {{ user.fitness_person_user.body_mass_index|floatformat:-2 }} -> <strong>Overweight</strong>
+                                        </h5>
+                                    {% else %}
+                                        <h5 class="card-title mb-0 white-color " id="body-mass-index">Body mass index
+                                            : {{ user.fitness_person_user.body_mass_index|floatformat:-2 }} -> <strong>Obese</strong>
+                                        </h5>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -253,13 +321,13 @@
                                                                 <span><strong>{{ user_exercise.exercise.name }} | {{ user_exercise.duration }} min</strong></span>
                                                                 <a href='{{ user_exercise.exercise.video_link }}'
                                                                    class="fa fa-pencil"></a>
-                                                                <a href='#' class="fa fa-times"
+                                                                <a href='#' class="fa fa-times" name="exercise"
                                                                    val="{{ user_exercise.id }}"></a>
                                                             {% elif user_exercise.exercise.exercise_type == 1 %}
                                                                 <span><strong>{{ user_exercise.exercise.name }} | {{ user_exercise.set_number }}x{{ user_exercise.rep_number }}</strong></span>
                                                                 <a href='{{ user_exercise.exercise.video_link }}'
                                                                    class="fa fa-pencil"></a>
-                                                                <a href='#' class="fa fa-times"
+                                                                <a href='#' class="fa fa-times" name="exercise"
                                                                    val="{{ user_exercise.id }}"></a>
                                                             {% endif %}
                                                         </label>
@@ -521,8 +589,8 @@
                                                             <span><strong>{{ user_food.food.name }} | (x{{ user_food.portion }})</strong></span>
                                                             <a href='{{ user_food.food.recipe_link }}'
                                                                class="fa fa-pencil"></a>
-                                                            <a href='#' class="fa fa-times"
-                                                               val="{{ user_food.id }},{{ daily_diet_program.id }}"></a>
+                                                            <a href='#' class="fa fa-times" name="food"
+                                                               val="{{ user_food.id }}"></a>
                                                         </label>
                                                     </li>
                                                 {% endfor %}
@@ -842,9 +910,9 @@
                                 },
                                 type: 'POST',
                                 success: function (data) {
-                                    console.log(data.daily_burned_calories);
                                     user_exercise_id = data.user_exercise_id;
                                     jQuery('#daily_burned_calories').text(data.daily_burned_calories);
+                                    alert(data.message);
                                 }
                             });
                             $("#exercise-checkbox-list").append('<li> <label> <span><strong>' + exercise_name + "| " + duration + " min" + '<strong></span>\n <a href=\'#\'\n' +
@@ -873,14 +941,14 @@
                                 success: function (data) {
                                     user_exercise_id = data.user_exercise_id;
                                     jQuery('#daily_burned_calories').text(data.daily_burned_calories);
+                                    alert(data.message);
                                 }
                             });
                             $("#exercise-checkbox-list").append('<li> <label><span><strong>' + exercise_name + "| " + set_number + "x" + rep_number + '</strong></span>\n <a href=\'#\'\n' +
                                 '                                                               class="fa fa-pencil"></a>\n' +
-                                '                                                             <a href=\'#\' val="exercise_id,user_exercise_id" class="fa fa-times"></a>  </label> </li>');
+                                '                                                             <a href=\'#\' val="user_exercise_id" class="fa fa-times" name="exercise"></a>  </label> </li>');
                         }
                     }
-                    alert('Exercise added successfully');
                     jQuery('#add-exercise-modal').modal('hide');
                 });
             });
@@ -892,6 +960,7 @@
                     let food_id = $('.food_selector').select2('data')[0].id;
                     let daily_person_id = {{ daily_person.id }};
                     let daily_diet_program_id = {{ daily_diet_program.id }};
+                    let user_food_id;
                     let portion = $('#portion-selection').val();
                     let cell = jQuery('#cellPaiChart').data();
                     if (portion === '') {
@@ -914,12 +983,13 @@
                                 jQuery('#progress-bar-protein-intake').text('Intake:' + Math.round(data.daily_protein_intake) + ' cal');
                                 jQuery('#progress-bar-fat-intake').text('Intake: ' + Math.round(data.daily_fat_intake) + ' cal');
                                 jQuery('#progress-bar-carb-intake').text('Intake: ' + Math.round(data.daily_carbohydrate_intake) + ' cal');
+                                user_food_id = data.user_food_id
+                                alert(data.message);
                             }
                         });
                         $("#food-checkbox-list").append('<li> <label> <span><strong>' + food_name + '| (x' + portion + ')' + '</strong></span>\n <a href=\'#\'\n' +
                             '                                                               class="fa fa-pencil"></a>\n' +
-                            '                                                            <a href=\'#\' class="fa fa-times"></a> </label> </li>')
-                        alert('Food added successfully')
+                            '                                                            <a href=\'#\' class="fa fa-times" val="user_food_id" name="food"></a> </label> </li>')
                         jQuery('#add-food-modal').modal('hide');
                     }
                 });
@@ -1003,29 +1073,52 @@
                 }
             });
 
-            // delete exercise.
+            // delete exercise or food.
             jQuery('.fa-times').click(function () {
-                let user_exercise_id = jQuery(this).attr('val');
                 let daily_person_id = {{ daily_person.id }};
-                let daily_exercise_program_id = {{ daily_exercise_program.id }};
-                jQuery.ajax({
-                    url: '/ajax/delete_exercise/',
-                    data: {
-                        'user_exercise_id': user_exercise_id,
-                        'daily_person_id': daily_person_id,
-                        'daily_exercise_program_id': daily_exercise_program_id,
-                        'csrfmiddlewaretoken': '{{ csrf_token }}',
-                    },
-                    dataType: 'json',
-                    type: 'POST',
-                    success: function (data) {
-                        if(data){
-                          jQuery('#daily_burned_calories').text(data.daily_burned_calories);
-                          alert(data.message);
+                let deleted_item_id = jQuery(this).attr('val');
+                let type_of_data = jQuery(this).attr('name');
+                if (type_of_data === 'exercise') {
+                    jQuery.ajax({
+                        url: '/ajax/delete_exercise/',
+                        data: {
+                            'user_exercise_id': deleted_item_id,
+                            'daily_person_id': daily_person_id,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        },
+                        dataType: 'json',
+                        type: 'POST',
+                        success: function (data) {
+                            if (data) {
+                                jQuery('#daily_burned_calories').text(data.daily_burned_calories);
+                                alert(data.message);
+                            }
+                            jQuery(this).closest('.li').remove();
                         }
-                    }
-                });
-                jQuery(this).closest('.li').remove();
+                    });
+                } else if (type_of_data === 'food') {
+                    jQuery.ajax({
+                        url: '/ajax/delete_food/',
+                        data: {
+                            'user_food_id': deleted_item_id,
+                            'daily_person_id': daily_person_id,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        },
+                        dataType: 'json',
+                        type: 'POST',
+                        success: function (data) {
+                            if (data) {
+                                jQuery('#daily_calorie_intakes').text(data.daily_calorie_intakes);
+                                jQuery('#progress-bar-calorie-intakes').text('Intake: ' + Math.round(data.daily_calorie_intakes) + ' cal');
+                                jQuery('#progress-bar-protein-intake').text('Intake:' + Math.round(data.daily_protein_intake) + ' cal');
+                                jQuery('#progress-bar-fat-intake').text('Intake: ' + Math.round(data.daily_fat_intake) + ' cal');
+                                jQuery('#progress-bar-carb-intake').text('Intake: ' + Math.round(data.daily_carbohydrate_intake) + ' cal');
+                                alert(data.message);
+                            }
+                            jQuery(this).closest('.li').remove();
+                        }
+                    });
+                }
             });
 
             jQuery(document).ready(function ($) {
