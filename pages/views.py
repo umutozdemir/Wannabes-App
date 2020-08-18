@@ -80,25 +80,6 @@ class SignupView(View):
             return redirect('signup')
 
 
-class DiaryView(View):
-    template_name = 'pages/diary.html'
-
-    def get(self, request, *args, **kwargs):
-        current_user = request.user
-        daily_person_of_current_user = current_user.fitness_person_user.dailyperson_set.filter(
-            date_added__date=timezone.now().today().date())[0]
-        daily_exercise_program_of_current_user = daily_person_of_current_user.exerciseprogram_set.filter(
-            date_added__date=timezone.now().today().date())[0]
-        daily_user_exercises = daily_exercise_program_of_current_user.userexercise_set.all()
-        daily_diet_program = daily_person_of_current_user.dietprogram_set.filter(
-            date_added__date=timezone.now().today().date())[0]
-        daily_meals = daily_diet_program.meal_set.all()
-        context = {'daily_user_exercises': daily_user_exercises,
-                   'daily_meals': daily_meals,
-                   'daily_person': daily_person_of_current_user}
-        return render(request, self.template_name, context)
-
-
 class AddExerciseView(View):
     """ This view works with AJAX. User add exercise via this view. """
 
@@ -128,7 +109,7 @@ class AddExerciseView(View):
             data = {
                 'daily_burned_calories': daily_person_of_current_user.daily_burned_calories,
                 'user_exercise_id': exercise_to_add.id,
-                'message': 'Exercise added successfully'
+                'how_many_calorie_burn': how_many_calorie_burn
             }
             return HttpResponse(json.dumps(data), content_type="application/json")
         elif exercise_type == 1:
@@ -155,7 +136,7 @@ class AddExerciseView(View):
             data = {
                 'daily_burned_calories': daily_person_of_current_user.daily_burned_calories,
                 'user_exercise_id': exercise_to_add.id,
-                'message': 'Exercise added successfully'
+                'how_many_calorie_burn': how_many_calorie_burn
             }
             return HttpResponse(json.dumps(data), content_type="application/json")
 
@@ -184,12 +165,12 @@ class AddFoodView(View):
         daily_person_of_current_user.save()
         current_user.save()
         data = {
-            'message': 'Food added successfully',
             'daily_calorie_intakes': daily_person_of_current_user.daily_calorie_intakes,
             'daily_protein_intake': daily_person_of_current_user.daily_protein_intake,
             'daily_fat_intake': daily_person_of_current_user.daily_fat_intake,
             'daily_carbohydrate_intake': daily_person_of_current_user.daily_carbohydrate_intake,
-            'user_food_id': user_food_to_add.id
+            'user_food_id': user_food_to_add.id,
+            'food_calorie': food_to_add.calorie
         }
         return HttpResponse(json.dumps(data), content_type="application/json")
 
@@ -258,12 +239,8 @@ class DeleteExercise(View):
         daily_person_id = request.POST.get('daily_person_id', int)
         user_exercise_to_delete = UserExercise.objects.get(pk=user_exercise_id)
         daily_person_of_current_user = DailyPerson.objects.get(pk=daily_person_id)
-        print('before : ')
-        print(daily_person_of_current_user.daily_burned_calories)
         daily_person_of_current_user.daily_burned_calories -= user_exercise_to_delete.how_many_calorie_burn
         daily_person_of_current_user.save()
-        print('after delete: ')
-        print(daily_person_of_current_user.daily_burned_calories)
         user_exercise_to_delete.delete()
         data = {
             'daily_burned_calories': daily_person_of_current_user.daily_burned_calories,
@@ -279,16 +256,15 @@ class DeleteFood(View):
         user_food_id = request.POST.get('user_food_id', int)
         daily_person_id = request.POST.get('daily_person_id', int)
         user_food_to_delete = UserFood.objects.get(pk=user_food_id)
+        portion = user_food_to_delete.portion
         daily_person_of_current_user = DailyPerson.objects.get(pk=daily_person_id)
         food = user_food_to_delete.food
-        print(daily_person_of_current_user.daily_calorie_intakes)
-        daily_person_of_current_user.daily_calorie_intakes -= food.calorie
-        daily_person_of_current_user.daily_protein_intake -= food.protein_amount
-        daily_person_of_current_user.daily_fat_intake -= food.fat_amount
-        daily_person_of_current_user.daily_carbohydrate_intake -= food.carbohydrate_amount
+        daily_person_of_current_user.daily_calorie_intakes -= (food.calorie * portion)
+        daily_person_of_current_user.daily_protein_intake -= (food.protein_amount * portion)
+        daily_person_of_current_user.daily_fat_intake -= (food.fat_amount * portion)
+        daily_person_of_current_user.daily_carbohydrate_intake -= (food.carbohydrate_amount * portion)
         daily_person_of_current_user.save()
         user_food_to_delete.delete()
-        print(daily_person_of_current_user.daily_calorie_intakes)
         data = {
             'daily_calorie_intakes': daily_person_of_current_user.daily_calorie_intakes,
             'daily_protein_intake': daily_person_of_current_user.daily_protein_intake,

@@ -1,6 +1,4 @@
-from pages.models import *
-from django.utils import timezone
-import math
+from pages.models import FitnessPerson
 
 
 def calculate_body_fat_percentage(fitness_person):

@@ -4,7 +4,6 @@ from pages.views import*
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('signup/', SignupView.as_view(), name='signup'),
-    path('diary', DiaryView.as_view(), name='diary'),
     path('ajax/add_exercise/', AddExerciseView.as_view(), name='add_exercise'),
     path('ajax/add_food/', AddFoodView.as_view(), name='add_food'),
     path('ajax/exercise_selection/', ExerciseSelection.as_view(), name='exercise_selection'),
