@@ -106,8 +106,10 @@ class AddExerciseView(View):
             daily_person_of_current_user.daily_burned_calories += how_many_calorie_burn
             daily_person_of_current_user.save()
             current_user.save()
+            print(daily_person_of_current_user.daily_burned_calories)
             data = {
                 'daily_burned_calories': daily_person_of_current_user.daily_burned_calories,
+                'daily_calorie_intakes': daily_person_of_current_user.daily_calorie_intakes,
                 'user_exercise_id': exercise_to_add.id,
                 'how_many_calorie_burn': how_many_calorie_burn
             }
@@ -133,8 +135,10 @@ class AddExerciseView(View):
             daily_person_of_current_user.daily_burned_calories += how_many_calorie_burn
             daily_person_of_current_user.save()
             current_user.save()
+            print(daily_person_of_current_user.daily_burned_calories)
             data = {
                 'daily_burned_calories': daily_person_of_current_user.daily_burned_calories,
+                'daily_calorie_intakes': daily_person_of_current_user.daily_calorie_intakes,
                 'user_exercise_id': exercise_to_add.id,
                 'how_many_calorie_burn': how_many_calorie_burn
             }
@@ -170,7 +174,8 @@ class AddFoodView(View):
             'daily_fat_intake': daily_person_of_current_user.daily_fat_intake,
             'daily_carbohydrate_intake': daily_person_of_current_user.daily_carbohydrate_intake,
             'user_food_id': user_food_to_add.id,
-            'food_calorie': food_to_add.calorie
+            'food_calorie': food_to_add.calorie,
+            'daily_burned_calories': daily_person_of_current_user.daily_burned_calories
         }
         return HttpResponse(json.dumps(data), content_type="application/json")
 
@@ -244,6 +249,7 @@ class DeleteExercise(View):
         user_exercise_to_delete.delete()
         data = {
             'daily_burned_calories': daily_person_of_current_user.daily_burned_calories,
+            'daily_calorie_intakes': daily_person_of_current_user.daily_calorie_intakes,
             'message': 'Exercise deleted with success'
         }
         return HttpResponse(json.dumps(data), content_type="application/json")
@@ -267,6 +273,7 @@ class DeleteFood(View):
         user_food_to_delete.delete()
         data = {
             'daily_calorie_intakes': daily_person_of_current_user.daily_calorie_intakes,
+            'daily_burned_calories': daily_person_of_current_user.daily_burned_calories,
             'daily_protein_intake': daily_person_of_current_user.daily_protein_intake,
             'daily_fat_intake': daily_person_of_current_user.daily_fat_intake,
             'daily_carbohydrate_intake': daily_person_of_current_user.daily_carbohydrate_intake,

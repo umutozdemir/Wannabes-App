@@ -128,6 +128,7 @@
                                         {% endif %}
                                         <div class="progress mb-2" style="height: 5px;">
                                             <div class="progress-bar bg-flat-color-1" role="progressbar"
+                                                 id="daily-calorie-intake-pbar"
                                                  style="width: calc({{ daily_person.daily_calorie_intakes }}% * 100 / {{ user.fitness_person_user.daily_required_calorie_intakes }}) ;"
                                                  aria-valuenow="{{ daily_person.daily_calorie_intake }}"
                                                  aria-valuemin="0"
@@ -148,6 +149,7 @@
                                         {% endif %}
                                         <div class="progress mb-2" style="height: 5px;">
                                             <div class="progress-bar bg-flat-color-2" role="progressbar"
+                                                 id="daily-protein-intake-pbar"
                                                  style="width: calc({{ daily_person.daily_protein_intake }}% * 100 / {{ user.fitness_person_user.required_protein }});"
                                                  aria-valuenow="{{ daily_person.daily_protein_intake }}"
                                                  aria-valuemin="0"
@@ -169,6 +171,7 @@
                                         {% endif %}
                                         <div class="progress mb-2" style="height: 5px;">
                                             <div class="progress-bar bg-flat-color-3" role="progressbar"
+                                                 id="daily-fat-pbar"
                                                  style="width: calc({{ daily_person.daily_fat_intake }}% * 100 / {{ user.fitness_person_user.required_fat }});"
                                                  aria-valuenow={{ daily_person.daily_fat_intake }} aria-valuemin="0"
                                                  aria-valuemax="{{ user.fitness_person_user.required_fat }}"></div>
@@ -189,6 +192,7 @@
                                         {% endif %}
                                         <div class="progress mb-2" style="height: 5px;">
                                             <div class="progress-bar bg-flat-color-4" role="progressbar"
+                                                 id="daily-carb-intake-pbar"
                                                  style="width: calc({{ daily_person.daily_carbohydrate_intake }}% * 100 / {{ user.fitness_person_user.required_carbohydrate }});"
                                                  aria-valuenow={{ daily_person.daily_carbohydrate_intake }} aria-valuemin="0"
                                                  aria-valuemax="{{ user.fitness_person_user.required_carbohydrate }}"></div>
@@ -312,7 +316,7 @@
                             <div class="card-content">
                                 <div class="todo-list">
                                     <div class="tdl-holder">
-                                        <div class="tdl-content">
+                                        <div class="tdl-content" id="exercise-checkbox-div">
                                             <ul id="exercise-checkbox-list">
                                                 {% for user_exercise in daily_exercise_program.userexercise_set.all %}
                                                     <li>
@@ -690,63 +694,15 @@
         <script>
             jQuery(document).ready(function ($) {
                 "use strict";
+                var fat_intake = {{ daily_person.daily_fat_intake }};
+                var carb_intake = {{ daily_person.daily_carbohydrate_intake }};
+                var protein_intake = {{ daily_person.daily_protein_intake }};
+                draw_flot_pie(protein_intake,fat_intake,carb_intake);
 
-                // Pie chart flotPie1
-                var piedata = [
-                    {label: "Fat", data: [[1, {{  daily_person.daily_fat_intake }}]], color: '#5c6bc0'},
-                    {
-                        label: "Carbohydrate",
-                        data: [[1, {{ daily_person.daily_carbohydrate_intake }}]],
-                        color: '#ef5350'
-                    },
-                    {label: "Protein", data: [[1, {{ daily_person.daily_protein_intake }}]], color: '#66bb6a'}
-                ];
+                var daily_burned_calories = {{ daily_person.daily_burned_calories }};
+                var daily_calorie_intakes = {{ daily_person.daily_calorie_intakes }};
+                draw_cell_pai_chart(daily_burned_calories, daily_calorie_intakes);
 
-                $.plot('#flotPie1', piedata, {
-                    series: {
-                        pie: {
-                            show: true,
-                            radius: 1,
-                            innerRadius: 0.65,
-                            label: {
-                                show: true,
-                                radius: 2 / 3,
-                                threshold: 1
-                            },
-                            stroke: {
-                                width: 0
-                            }
-                        }
-                    },
-                    grid: {
-                        hoverable: true,
-                        clickable: true
-                    }
-                });
-                // Pie chart flotPie1  End
-                // cellPaiChart
-                var cellPaiChart = [
-                    {label: "Calorie Burned", data: [[1, {{ daily_person.daily_burned_calories }}]], color: '#5b83de'},
-                    {label: "Calorie Intake", data: [[1, {{ daily_person.daily_calorie_intakes }}]], color: '#00bfa5'}
-                ];
-                $.plot('#cellPaiChart', cellPaiChart, {
-                    series: {
-                        pie: {
-                            show: true,
-                            stroke: {
-                                width: 0
-                            }
-                        }
-                    },
-                    legend: {
-                        show: false
-                    }, grid: {
-                        hoverable: true,
-                        clickable: true
-                    }
-
-                });
-                // cellPaiChart End
                 // Line Chart  #flotLine5
                 var newCust = [[0, 3], [1, 5], [2, 4], [3, 7], [4, 9], [5, 3], [6, 6], [7, 4], [8, 10]];
 
@@ -866,20 +822,7 @@
                     });
                 }
                 //Traffic chart chart-js  End
-                // Bar Chart #flotBarChart
-                $.plot("#flotBarChart", [{
-                    data: [[0, 18], [2, 8], [4, 5], [6, 13], [8, 5], [10, 7], [12, 4], [14, 6], [16, 15], [18, 9], [20, 17], [22, 7], [24, 4], [26, 9], [28, 11]],
-                    bars: {
-                        show: true,
-                        lineWidth: 0,
-                        fillColor: '#ffffff8a'
-                    }
-                }], {
-                    grid: {
-                        show: false
-                    }
-                });
-                // Bar Chart #flotBarChart End
+
             });
 
             // add selected exercise to checkbox list.
@@ -915,12 +858,13 @@
                                     console.log(user_exercise_id);
                                     how_many_calorie_burn = Math.round(data.how_many_calorie_burn);
                                     jQuery('#daily_burned_calories').text(Math.round(data.daily_burned_calories));
-
                                     jQuery("#exercise-checkbox-list").append('<li> <label> <span><strong>' + exercise_name + "| " + duration + " min" + " | " + how_many_calorie_burn + " cal burned" + '<strong></span>\n <a href=\'#\'\n' +
                                         '                                                               class="fa fa-pencil"></a>\n' +
                                         '                                                            <a href=\'#\' val="user_exercise_id" class="fa fa-times"></a> </label> </li>');
+                                    draw_cell_pai_chart(data.daily_burned_calorie, data.daily_calorie_intakes);
                                 }
                             });
+                            //jQuery("#exercise-checkbox-div").load(location.href + " #exercise-checkbox-div>*", "");
                         }
                     } else if (jQuery('#weight-radio').is(':checked')) {
                         if (set_number === '') {
@@ -948,6 +892,7 @@
                                     jQuery("#exercise-checkbox-list").append('<li> <label><span><strong>' + exercise_name + "| " + set_number + "x" + rep_number + " | " + how_many_calorie_burn + " cal burned" + '</strong></span>\n <a href=\'#\'\n' +
                                         '                                                               class="fa fa-pencil"></a>\n' +
                                         '                                                             <a href=\'#\' class="fa fa-times" name="exercise" val=user_exercise_id ></a>  </label> </li>');
+                                    draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
                                 }
                             });
                         }
@@ -990,9 +935,15 @@
                                 jQuery('#progress-bar-carb-intake').text('Intake: ' + Math.round(data.daily_carbohydrate_intake) + ' cal');
                                 user_food_id = data.user_food_id;
                                 food_calorie = data.food_calorie;
-                                jQuery("#food-checkbox-list").append('<li> <label> <span><strong>' + food_name + '| (x' + portion + ')' + ' | '+ food_calorie + ' cal taken' + '</strong></span>\n <a href=\'#\'\n' +
-                            '                                                               class="fa fa-pencil"></a>\n' +
-                            '                                                            <a href=\'#\' class="fa fa-times" name="food" val=user_food_id ></a> </label> </li>')
+                                jQuery("#food-checkbox-list").append('<li> <label> <span><strong>' + food_name + '| (x' + portion + ')' + ' | ' + food_calorie + ' cal taken' + '</strong></span>\n <a href=\'#\'\n' +
+                                    '                                                               class="fa fa-pencil"></a>\n' +
+                                    '                                                            <a href=\'#\' class="fa fa-times" name="food" val=user_food_id ></a> </label> </li>');
+                                jQuery('#daily-calorie-intake-pbar').width(data.daily_calorie_intakes * 400 / {{ user.fitness_person_user.daily_required_calorie_intakes }});
+                                jQuery('#daily-protein-intake-pbar').width(data.daily_protein_intake * 400 / {{ user.fitness_person_user.required_protein }});
+                                jQuery('#daily-fat-pbar').width(data.daily_fat_intake * 400 / {{ user.fitness_person_user.required_fat }});
+                                jQuery('#daily-carb-intake-pbar').width(data.daily_carbohydrate_intake * 400 / {{ user.fitness_person_user.required_carbohydrate }});
+                                draw_flot_pie(data.daily_protein_intake, data.daily_fat_intake, data.daily_carbohydrate_intake);
+                                draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
                             }
                         });
                         jQuery('#add-food-modal').modal('hide');
@@ -1080,7 +1031,7 @@
             });
 
             // delete exercise or food.
-            jQuery('.fa-times').on("click",(function () {
+            jQuery('.fa-times').on("click", (function () {
                 console.log('buton goruldu');
                 let daily_person_id = {{ daily_person.id }};
                 let deleted_item_id = jQuery(this).attr('val');
@@ -1099,6 +1050,7 @@
                             if (data) {
                                 jQuery('#daily_burned_calories').text(data.daily_burned_calories);
                                 alert(data.message);
+                                draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
                             }
                         }
                     });
@@ -1121,6 +1073,12 @@
                                 jQuery('#progress-bar-protein-intake').text('Intake:' + Math.round(data.daily_protein_intake) + ' cal');
                                 jQuery('#progress-bar-fat-intake').text('Intake: ' + Math.round(data.daily_fat_intake) + ' cal');
                                 jQuery('#progress-bar-carb-intake').text('Intake: ' + Math.round(data.daily_carbohydrate_intake) + ' cal');
+                                jQuery('#daily-calorie-intake-pbar').width(data.daily_calorie_intakes * 400 / {{ user.fitness_person_user.daily_required_calorie_intakes }});
+                                jQuery('#daily-protein-intake-pbar').width(data.daily_protein_intake * 400 / {{ user.fitness_person_user.required_protein }});
+                                jQuery('#daily-fat-pbar').width(data.daily_fat_intake * 400 / {{ user.fitness_person_user.required_fat }});
+                                jQuery('#daily-carb-intake-pbar').width(data.daily_carbohydrate_intake * 400 / {{ user.fitness_person_user.required_carbohydrate }});
+                                draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
+                                draw_flot_pie(data.daily_protein_intake, data.daily_fat_intake, data.daily_carbohydrate_intake);
                                 alert(data.message);
                             }
                         }
@@ -1159,6 +1117,10 @@
                                     jQuery('#recommended-protein-intake').text('Recommended: ' + Math.round(data.required_protein_intake) + ' gr');
                                     jQuery('#recommended-fat-intake').text('Recommended: ' + Math.round(data.required_fat_intake) + ' gr');
                                     jQuery('#recommended-carbohydrate-intake').text('Recommended: ' + Math.round(data.required_carbohydrate_intake) + ' gr');
+                                    jQuery('#daily-calorie-intake-pbar').width(({{ daily_person.daily_calorie_intakes }}) * 400 / data.required_calorie_intakes);
+                                    jQuery('#daily-protein-intake-pbar').width(({{ daily_person.daily_protein_intake }}) * 400 / data.required_protein_intake);
+                                    jQuery('#daily-fat-pbar').width(({{ daily_person.daily_fat_intake }}) * 400 / data.required_fat_intake);
+                                    jQuery('#daily-carb-intake-pbar').width(({{ daily_person.daily_carbohydrate_intake }}) * 400 / data.required_carbohydrate_intake);
                                     alert(data.message);
                                 }
                                 jQuery('#edit-profile-modal').modal('hide');
@@ -1167,6 +1129,70 @@
                     }
                 });
             });
+
+            function draw_cell_pai_chart(daily_burned_calories, daily_calorie_intakes) {
+                console.log('girdi');
+                console.log(daily_burned_calories);
+                console.log(daily_calorie_intakes);
+                var cellPaiChart = [
+                    {label: "Calorie Burned", data: [[1, daily_burned_calories]], color: '#5b83de'},
+                    {label: "Calorie Intake", data: [[1, daily_calorie_intakes]], color: '#00bfa5'}
+                ];
+
+                jQuery.plot('#cellPaiChart', cellPaiChart, {
+                    series: {
+                        pie: {
+                            show: true,
+                            stroke: {
+                                width: 0
+                            }
+                        }
+                    },
+                    legend: {
+                        show: false
+                    }, grid: {
+                        hoverable: true,
+                        clickable: true
+                    }
+
+                });
+            }
+
+            function draw_flot_pie(protein_intake, fat_intake, carb_intake) {
+                // Pie chart flotPie1
+                var piedata = [
+                    {label: "Fat", data: [[1, fat_intake]], color: '#5c6bc0'},
+                    {
+                        label: "Carbohydrate",
+                        data: [[1, carb_intake]],
+                        color: '#ef5350'
+                    },
+                    {label: "Protein", data: [[1, protein_intake]], color: '#66bb6a'}
+                ];
+
+                jQuery.plot('#flotPie1', piedata, {
+                    series: {
+                        pie: {
+                            show: true,
+                            radius: 1,
+                            innerRadius: 0.65,
+                            label: {
+                                show: true,
+                                radius: 2 / 3,
+                                threshold: 1
+                            },
+                            stroke: {
+                                width: 0
+                            }
+                        }
+                    },
+                    grid: {
+                        hoverable: true,
+                        clickable: true
+                    }
+                });
+                // Pie chart flotPie1  End
+            }
 
         </script>
     </div>
