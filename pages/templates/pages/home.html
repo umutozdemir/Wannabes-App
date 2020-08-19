@@ -358,7 +358,7 @@
                                                            id="weight-selection-label" for="weight-selection">
                                                         Weight
                                                     </label>
-                                                    <input class="form-check-input" type="number" min="1"
+                                                    <input class="form-check-input" type="number" style="margin-right: auto" min="1"
                                                            step="1" name="weight-selection"
                                                            id="weight-selection" required>
                                                 </div>
@@ -622,6 +622,9 @@
                                                         <label hidden class="form-check-label" for="portion-selection"
                                                                id="portion-selection-label">
                                                             Portion
+                                                            (500 gr)
+                                                            (250 ml)
+                                                            (1 plate)
                                                         </label>
                                                     </div>
                                                     <div class="col-lg-9">
@@ -703,49 +706,29 @@
                 var daily_calorie_intakes = {{ daily_person.daily_calorie_intakes }};
                 draw_cell_pai_chart(daily_burned_calories, daily_calorie_intakes);
 
-                // Line Chart  #flotLine5
-                var newCust = [[0, 3], [1, 5], [2, 4], [3, 7], [4, 9], [5, 3], [6, 6], [7, 4], [8, 10]];
+                var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                var goBackDays = 7;
 
-                var plot = $.plot($('#flotLine5'), [{
-                        data: newCust,
-                        label: 'New Data Flow',
-                        color: '#fff'
-                    }],
-                    {
-                        series: {
-                            lines: {
-                                show: true,
-                                lineColor: '#fff',
-                                lineWidth: 2
-                            },
-                            points: {
-                                show: true,
-                                fill: true,
-                                fillColor: "#ffffff",
-                                symbol: "circle",
-                                radius: 3
-                            },
-                            shadowSize: 0
-                        },
-                        points: {
-                            show: true,
-                        },
-                        legend: {
-                            show: false
-                        },
-                        grid: {
-                            show: false
-                        }
-                    });
-                // Line Chart  #flotLine5 End
+                var today = new Date();
+                var daysSorted = [];
+
+                for (var i = 0; i < goBackDays; i++) {
+                    var newDate = new Date(today.setDate(today.getDate() - 1));
+                    daysSorted.push(days[newDate.getDay()]);
+                }
+                daysSorted.reverse();
+                daysSorted.shift();
+                var weekly_height = {{ last_seven_days_weight }} ;
+                var weekly_calorie_intakes = {{ last_seven_days_calorie_intakes }};
+                var weekly_burned_calories = {{ last_seven_days_burned_calories }};
+
                 // Traffic Chart using chartist
                 if ($('#traffic-chart').length) {
                     var chart = new Chartist.Line('#traffic-chart', {
-                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        labels: daysSorted,
                         series: [
-                            [0, 18000, 35000, 25000, 22000, 0],
-                            [0, 33000, 15000, 20000, 15000, 300],
-                            [0, 15000, 28000, 15000, 30000, 5000]
+                            weekly_burned_calories,
+                            weekly_calorie_intakes,
                         ]
                     }, {
                         low: 0,
@@ -773,6 +756,7 @@
                     });
                 }
                 // Traffic Chart using chartist End
+
                 //Traffic chart chart-js
                 if ($('#TrafficChart').length) {
                     var ctx = document.getElementById("TrafficChart");
@@ -780,14 +764,14 @@
                     var myChart = new Chart(ctx, {
                         type: 'line',
                         data: {
-                            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+                            labels: daysSorted,
                             datasets: [
                                 {
                                     label: "Visit",
                                     borderColor: "rgba(4, 73, 203,.09)",
                                     borderWidth: "1",
                                     backgroundColor: "rgba(4, 73, 203,.5)",
-                                    data: [0, 2900, 5000, 3300, 6000, 3250, 0]
+                                    data: [0, 2900, 5000, 3300, 6000, 3250, 4000]
                                 },
                                 {
                                     label: "Bounce",
@@ -803,7 +787,7 @@
                                     borderWidth: "1",
                                     backgroundColor: "rgba(40, 169, 46, .5)",
                                     pointHighlightStroke: "rgba(40, 169, 46,.5)",
-                                    data: [1000, 5200, 3600, 2600, 4200, 5300, 0]
+                                    data: [1000, 5200, 3600, 2600, 4200, 5300, 5000]
                                 }
                             ]
                         },
