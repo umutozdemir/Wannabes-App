@@ -94,7 +94,7 @@ class AddExerciseView(View):
             duration = int(request.POST.get('duration', int))
             daily_person_id = request.POST.get('daily_person_id', int)
             daily_exercise_program_id = request.POST.get('daily_exercise_program_id', int)
-            how_many_calorie_burn = duration * 6 * 3.5 * current_user.weight / 200
+            how_many_calorie_burn = int(duration * 6 * 3.5 * current_user.weight / 200)
             daily_person_of_current_user = DailyPerson.objects.get(pk=daily_person_id)
             daily_exercise_program_of_current_user = ExerciseProgram.objects.get(pk=daily_exercise_program_id)
             exercise_to_add = UserExercise.objects.create(
@@ -161,10 +161,10 @@ class AddFoodView(View):
         user_food_to_add = UserFood.objects.create(diet_program=daily_diet_program,
                                                    food=food_to_add,
                                                    portion=portion)
-        daily_person_of_current_user.daily_protein_intake += (food_to_add.protein_amount * portion)
-        daily_person_of_current_user.daily_fat_intake += (food_to_add.fat_amount * portion)
-        daily_person_of_current_user.daily_carbohydrate_intake += (food_to_add.carbohydrate_amount * portion)
-        daily_person_of_current_user.daily_calorie_intakes += (food_to_add.calorie * portion)
+        daily_person_of_current_user.daily_protein_intake += int((food_to_add.protein_amount * portion))
+        daily_person_of_current_user.daily_fat_intake += int((food_to_add.fat_amount * portion))
+        daily_person_of_current_user.daily_carbohydrate_intake += int((food_to_add.carbohydrate_amount * portion))
+        daily_person_of_current_user.daily_calorie_intakes += int((food_to_add.calorie * portion))
         daily_diet_program.save()
         daily_person_of_current_user.save()
         current_user.save()
@@ -265,10 +265,10 @@ class DeleteFood(View):
         portion = user_food_to_delete.portion
         daily_person_of_current_user = DailyPerson.objects.get(pk=daily_person_id)
         food = user_food_to_delete.food
-        daily_person_of_current_user.daily_calorie_intakes -= (food.calorie * portion)
-        daily_person_of_current_user.daily_protein_intake -= (food.protein_amount * portion)
-        daily_person_of_current_user.daily_fat_intake -= (food.fat_amount * portion)
-        daily_person_of_current_user.daily_carbohydrate_intake -= (food.carbohydrate_amount * portion)
+        daily_person_of_current_user.daily_calorie_intakes -= int((food.calorie * portion))
+        daily_person_of_current_user.daily_protein_intake -= int((food.protein_amount * portion))
+        daily_person_of_current_user.daily_fat_intake -= int((food.fat_amount * portion))
+        daily_person_of_current_user.daily_carbohydrate_intake -= int((food.carbohydrate_amount * portion))
         daily_person_of_current_user.save()
         user_food_to_delete.delete()
         data = {
