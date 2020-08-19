@@ -316,7 +316,7 @@
                             <div class="card-content">
                                 <div class="todo-list">
                                     <div class="tdl-holder">
-                                        <div class="tdl-content" id="exercise-checkbox-div">
+                                        <div class="tdl-content">
                                             <ul id="exercise-checkbox-list">
                                                 {% for user_exercise in daily_exercise_program.userexercise_set.all %}
                                                     <li>
@@ -325,13 +325,13 @@
                                                                 <span><strong>{{ user_exercise.exercise.name }} | {{ user_exercise.duration }} min | {{ user_exercise.how_many_calorie_burn }} cal burned</strong></span>
                                                                 <a href='{{ user_exercise.exercise.video_link }}'
                                                                    class="fa fa-pencil"></a>
-                                                                <a href='#' class="fa fa-times" name="exercise"
+                                                                <a href='#' class="fa fa-times"
                                                                    val="{{ user_exercise.id }}"></a>
                                                             {% elif user_exercise.exercise.exercise_type == 1 %}
                                                                 <span><strong>{{ user_exercise.exercise.name }} | {{ user_exercise.set_number }}x{{ user_exercise.rep_number }} | {{ user_exercise.how_many_calorie_burn }} cal burned</strong></span>
                                                                 <a href='{{ user_exercise.exercise.video_link }}'
                                                                    class="fa fa-pencil"></a>
-                                                                <a href='#' class="fa fa-times" name="exercise"
+                                                                <a href='#' class="fa fa-times"
                                                                    val="{{ user_exercise.id }}"></a>
                                                             {% endif %}
                                                         </label>
@@ -589,11 +589,11 @@
                                             <ul id="food-checkbox-list">
                                                 {% for user_food in daily_diet_program.userfood_set.all %}
                                                     <li>
-                                                        <label>
+                                                        <label id="list-item">
                                                             <span><strong>{{ user_food.food.name }} | (x{{ user_food.portion }}) | {{ user_food.food.calorie }} cal taken</strong></span>
                                                             <a href='{{ user_food.food.recipe_link }}'
                                                                class="fa fa-pencil"></a>
-                                                            <a href='#' class="fa fa-times" name="food"
+                                                            <a href='#' class="fa fa-times"
                                                                val="{{ user_food.id }}"></a>
                                                         </label>
                                                     </li>
@@ -697,7 +697,7 @@
                 var fat_intake = {{ daily_person.daily_fat_intake }};
                 var carb_intake = {{ daily_person.daily_carbohydrate_intake }};
                 var protein_intake = {{ daily_person.daily_protein_intake }};
-                draw_flot_pie(protein_intake,fat_intake,carb_intake);
+                draw_flot_pie(protein_intake, fat_intake, carb_intake);
 
                 var daily_burned_calories = {{ daily_person.daily_burned_calories }};
                 var daily_calorie_intakes = {{ daily_person.daily_calorie_intakes }};
@@ -891,7 +891,7 @@
                                     jQuery('#daily_burned_calories').text(Math.round(data.daily_burned_calories));
                                     jQuery("#exercise-checkbox-list").append('<li> <label><span><strong>' + exercise_name + "| " + set_number + "x" + rep_number + " | " + how_many_calorie_burn + " cal burned" + '</strong></span>\n <a href=\'#\'\n' +
                                         '                                                               class="fa fa-pencil"></a>\n' +
-                                        '                                                             <a href=\'#\' class="fa fa-times" name="exercise" val=user_exercise_id ></a>  </label> </li>');
+                                        '                                                             <a href=\'#\' class="fa fa-times" val=user_exercise_id ></a>  </label> </li>');
                                     draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
                                 }
                             });
@@ -937,7 +937,7 @@
                                 food_calorie = data.food_calorie;
                                 jQuery("#food-checkbox-list").append('<li> <label> <span><strong>' + food_name + '| (x' + portion + ')' + ' | ' + food_calorie + ' cal taken' + '</strong></span>\n <a href=\'#\'\n' +
                                     '                                                               class="fa fa-pencil"></a>\n' +
-                                    '                                                            <a href=\'#\' class="fa fa-times" name="food" val=user_food_id ></a> </label> </li>');
+                                    '                                                            <a href=\'#\' class="fa fa-times" val=user_food_id ></a> </label> </li>');
                                 jQuery('#daily-calorie-intake-pbar').width(data.daily_calorie_intakes * 400 / {{ user.fitness_person_user.daily_required_calorie_intakes }});
                                 jQuery('#daily-protein-intake-pbar').width(data.daily_protein_intake * 400 / {{ user.fitness_person_user.required_protein }});
                                 jQuery('#daily-fat-pbar').width(data.daily_fat_intake * 400 / {{ user.fitness_person_user.required_fat }});
@@ -1030,61 +1030,65 @@
                 }
             });
 
-            // delete exercise or food.
-            jQuery('.fa-times').on("click", (function () {
-                console.log('buton goruldu');
+            // delete food.
+            jQuery('#food-checkbox-list').on("click", ".fa-times", (function () {
+                console.log('delete food button goruldu');
                 let daily_person_id = {{ daily_person.id }};
-                let deleted_item_id = jQuery(this).attr('val');
-                let type_of_data = jQuery(this).attr('name');
-                if (type_of_data === 'exercise') {
-                    jQuery.ajax({
-                        url: '/ajax/delete_exercise/',
-                        data: {
-                            'user_exercise_id': deleted_item_id,
-                            'daily_person_id': daily_person_id,
-                            'csrfmiddlewaretoken': '{{ csrf_token }}',
-                        },
-                        dataType: 'json',
-                        type: 'POST',
-                        success: function (data) {
-                            if (data) {
-                                jQuery('#daily_burned_calories').text(data.daily_burned_calories);
-                                alert(data.message);
-                                draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
-                            }
+                let user_food_id = jQuery(this).attr('val');
+                jQuery.ajax({
+                    url: '/ajax/delete_food/',
+                    data: {
+                        'user_food_id': user_food_id,
+                        'daily_person_id': daily_person_id,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    },
+                    dataType: 'json',
+                    type: 'POST',
+                    success: function (data) {
+                        if (data) {
+                            jQuery('#daily_calorie_intakes').text(data.daily_calorie_intakes);
+                            jQuery('#progress-bar-calorie-intakes').text('Intake: ' + Math.round(data.daily_calorie_intakes) + ' cal');
+                            jQuery('#progress-bar-protein-intake').text('Intake:' + Math.round(data.daily_protein_intake) + ' cal');
+                            jQuery('#progress-bar-fat-intake').text('Intake: ' + Math.round(data.daily_fat_intake) + ' cal');
+                            jQuery('#progress-bar-carb-intake').text('Intake: ' + Math.round(data.daily_carbohydrate_intake) + ' cal');
+                            jQuery('#daily-calorie-intake-pbar').width(data.daily_calorie_intakes * 400 / {{ user.fitness_person_user.daily_required_calorie_intakes }});
+                            jQuery('#daily-protein-intake-pbar').width(data.daily_protein_intake * 400 / {{ user.fitness_person_user.required_protein }});
+                            jQuery('#daily-fat-pbar').width(data.daily_fat_intake * 400 / {{ user.fitness_person_user.required_fat }});
+                            jQuery('#daily-carb-intake-pbar').width(data.daily_carbohydrate_intake * 400 / {{ user.fitness_person_user.required_carbohydrate }});
+                            draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
+                            draw_flot_pie(data.daily_protein_intake, data.daily_fat_intake, data.daily_carbohydrate_intake);
+                            alert(data.message);
                         }
-                    });
-                    jQuery(this).closest('li').remove();
+                    }
+                });
+                jQuery(this).closest('li').remove();
 
-                } else if (type_of_data === 'food') {
-                    jQuery.ajax({
-                        url: '/ajax/delete_food/',
-                        data: {
-                            'user_food_id': deleted_item_id,
-                            'daily_person_id': daily_person_id,
-                            'csrfmiddlewaretoken': '{{ csrf_token }}',
-                        },
-                        dataType: 'json',
-                        type: 'POST',
-                        success: function (data) {
-                            if (data) {
-                                jQuery('#daily_calorie_intakes').text(data.daily_calorie_intakes);
-                                jQuery('#progress-bar-calorie-intakes').text('Intake: ' + Math.round(data.daily_calorie_intakes) + ' cal');
-                                jQuery('#progress-bar-protein-intake').text('Intake:' + Math.round(data.daily_protein_intake) + ' cal');
-                                jQuery('#progress-bar-fat-intake').text('Intake: ' + Math.round(data.daily_fat_intake) + ' cal');
-                                jQuery('#progress-bar-carb-intake').text('Intake: ' + Math.round(data.daily_carbohydrate_intake) + ' cal');
-                                jQuery('#daily-calorie-intake-pbar').width(data.daily_calorie_intakes * 400 / {{ user.fitness_person_user.daily_required_calorie_intakes }});
-                                jQuery('#daily-protein-intake-pbar').width(data.daily_protein_intake * 400 / {{ user.fitness_person_user.required_protein }});
-                                jQuery('#daily-fat-pbar').width(data.daily_fat_intake * 400 / {{ user.fitness_person_user.required_fat }});
-                                jQuery('#daily-carb-intake-pbar').width(data.daily_carbohydrate_intake * 400 / {{ user.fitness_person_user.required_carbohydrate }});
-                                draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
-                                draw_flot_pie(data.daily_protein_intake, data.daily_fat_intake, data.daily_carbohydrate_intake);
-                                alert(data.message);
-                            }
+            }));
+
+
+            // delete exercise
+            jQuery('#exercise-checkbox-list').on("click", ".fa-times", (function () {
+                console.log('delete exercise button goruldu');
+                let daily_person_id = {{ daily_person.id }};
+                let user_exercise_id = jQuery(this).attr('val');
+                jQuery.ajax({
+                    url: '/ajax/delete_exercise/',
+                    data: {
+                        'user_exercise_id': user_exercise_id,
+                        'daily_person_id': daily_person_id,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    },
+                    dataType: 'json',
+                    type: 'POST',
+                    success: function (data) {
+                        if (data) {
+                            jQuery('#daily_burned_calories').text(data.daily_burned_calories);
+                            alert(data.message);
+                            draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
                         }
-                    });
-                    jQuery(this).closest('li').remove();
-                }
+                    }
+                });
+                jQuery(this).closest('li').remove();
             }));
 
             // handle edit profile functionality
