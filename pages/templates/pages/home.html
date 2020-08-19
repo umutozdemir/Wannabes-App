@@ -326,13 +326,13 @@
                                                             {% if user_exercise.exercise.exercise_type == 0 %}
                                                                 <span><strong>{{ user_exercise.exercise.name }} | {{ user_exercise.duration }} min | {{ user_exercise.how_many_calorie_burn }} cal burned</strong></span>
                                                                 <a href='{{ user_exercise.exercise.video_link }}'
-                                                                   class="fa fa-pencil"></a>
+                                                                   class="fa fa-youtube"></a>
                                                                 <a href='#' class="fa fa-times"
                                                                    val="{{ user_exercise.id }}"></a>
                                                             {% elif user_exercise.exercise.exercise_type == 1 %}
                                                                 <span><strong>{{ user_exercise.exercise.name }} | {{ user_exercise.set_number }}x{{ user_exercise.rep_number }} | {{ user_exercise.how_many_calorie_burn }} cal burned</strong></span>
                                                                 <a href='{{ user_exercise.exercise.video_link }}'
-                                                                   class="fa fa-pencil"></a>
+                                                                   class="fa fa-youtube"></a>
                                                                 <a href='#' class="fa fa-times"
                                                                    val="{{ user_exercise.id }}"></a>
                                                             {% endif %}
@@ -593,7 +593,7 @@
                                                         <label id="list-item">
                                                             <span><strong>{{ user_food.food.name }} | (x{{ user_food.portion }}) | {{ user_food.food.calorie }} cal taken</strong></span>
                                                             <a href='{{ user_food.food.recipe_link }}'
-                                                               class="fa fa-pencil"></a>
+                                                               class="fa fa-youtube"></a>
                                                             <a href='#' class="fa fa-times"
                                                                val="{{ user_food.id }}"></a>
                                                         </label>
@@ -835,6 +835,7 @@
                     let set_number = $('#set-selection').val();
                     let rep_number = $('#rep-selection').val();
                     let user_exercise_id;
+                    let exercise_video_link;
                     let how_many_calorie_burn = 0;
                     if (jQuery('#cardio-radio').is(':checked')) {
                         if (duration === '') {
@@ -855,15 +856,20 @@
                                 success: function (data) {
                                     user_exercise_id = data.user_exercise_id;
                                     how_many_calorie_burn = data.how_many_calorie_burn;
+                                    exercise_video_link = data.exercise_video_link;
                                     jQuery('#daily_burned_calories').text(data.daily_burned_calories);
-                                    jQuery("#exercise-checkbox-list").append('<li> <label> <span><strong>' + exercise_name + "| " + duration + " min" + " | " + how_many_calorie_burn + " cal burned" + '<strong></span>\n <a href=\'#\'\n' +
-                                        '                                                               class="fa fa-pencil"></a>\n' +
+                                    jQuery("#exercise-checkbox-list").append('<li> <label> <span><strong>' + exercise_name + "| " + duration + " min" + " | " + how_many_calorie_burn + " cal burned" + '<strong></span>\n <a \n' +
+                                        '                                                               class="fa fa-youtube" id="exercise-video-link-button"></a>\n' +
                                         '                                                            <a href=\'#\' id="exercise-times-button" class="fa fa-times"></a> </label> </li>');
                                     var elms = document.querySelectorAll("[id='exercise-times-button']");
                                     var exercise_list_length = elms.length;
                                     var val_exercise_id = document.createAttribute("val");
                                     val_exercise_id.value = user_exercise_id;
                                     elms[exercise_list_length-1].attributes.setNamedItem(val_exercise_id);
+                                    var elms_link = document.querySelectorAll("[id='exercise-video-link-button']");
+                                    var href_exercise_link = document.createAttribute("href");
+                                    href_exercise_link.value = exercise_video_link;
+                                    elms_link[exercise_list_length-1].attributes.setNamedItem(href_exercise_link);
                                     draw_cell_pai_chart(data.daily_burned_calorie, data.daily_calorie_intakes);
                                 }
                             });
@@ -892,15 +898,20 @@
                                 success: function (data) {
                                     user_exercise_id = data.user_exercise_id;
                                     how_many_calorie_burn = data.how_many_calorie_burn;
+                                    exercise_video_link = data.exercise_video_link;
                                     jQuery('#daily_burned_calories').text(data.daily_burned_calories);
-                                    jQuery("#exercise-checkbox-list").append('<li> <label><span><strong>' + exercise_name + "| " + set_number + "x" + rep_number + " | " + how_many_calorie_burn + " cal burned" + '</strong></span>\n <a href=\'#\'\n' +
-                                        '                                                               class="fa fa-pencil"></a>\n' +
+                                    jQuery("#exercise-checkbox-list").append('<li> <label><span><strong>' + exercise_name + "| " + set_number + "x" + rep_number + " | " + how_many_calorie_burn + " cal burned" + '</strong></span>\n <a \n' +
+                                        '                                                               class="fa fa-youtube" id="exercise-video-link-button"></a>\n' +
                                         '                                                             <a href=\'#\' id="exercise-times-button" class="fa fa-times"></a>  </label> </li>');
                                     var elms = document.querySelectorAll("[id='exercise-times-button']");
                                     var exercise_list_length = elms.length;
                                     var val_exercise_id = document.createAttribute("val");
                                     val_exercise_id.value = user_exercise_id;
                                     elms[exercise_list_length-1].attributes.setNamedItem(val_exercise_id);
+                                    var elms_link = document.querySelectorAll("[id='exercise-video-link-button']");
+                                    var href_exercise_link = document.createAttribute("href");
+                                    href_exercise_link.value = exercise_video_link;
+                                    elms_link[exercise_list_length-1].attributes.setNamedItem(href_exercise_link);
                                     draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
                                 }
                             });
@@ -919,9 +930,9 @@
                     let daily_person_id = {{ daily_person.id }};
                     let daily_diet_program_id = {{ daily_diet_program.id }};
                     let user_food_id;
+                    let food_recipe_link;
                     let food_calorie;
                     let portion = $('#portion-selection').val();
-                    let cell = jQuery('#cellPaiChart').data();
                     if (portion === '') {
                         alert('Please fill out portion field.')
                     } else {
@@ -944,14 +955,19 @@
                                 jQuery('#progress-bar-carb-intake').text('Intake: ' + data.daily_carbohydrate_intake + ' cal');
                                 user_food_id = data.user_food_id;
                                 food_calorie = data.food_calorie;
-                                jQuery("#food-checkbox-list").append('<li> <label> <span><strong>' + food_name + '| (x' + portion + ')' + ' | ' + food_calorie + ' cal taken' + '</strong></span>\n <a href=\'#\'\n' +
-                                    '                                                               class="fa fa-pencil"></a>\n' +
+                                food_recipe_link = data.food_recipe_link;
+                                jQuery("#food-checkbox-list").append('<li> <label> <span><strong>' + food_name + '| (x' + portion + ')' + ' | ' + food_calorie + ' cal taken' + '</strong></span>\n <a \n' +
+                                    '                                                               class="fa fa-pencil" id="food-video-link-button"></a>\n' +
                                     '                                                            <a href=\'#\' class="fa fa-times" id="food-times-button" ></a> </label> </li>');
                                 var elms = document.querySelectorAll("[id='food-times-button']");
                                 var food_list_length = elms.length;
                                 var val_food_id = document.createAttribute("val");
                                 val_food_id.value = user_food_id;
                                 elms[food_list_length-1].attributes.setNamedItem(val_food_id);
+                                var elms_link = document.querySelectorAll("[id='food-video-link-button']");
+                                var href_food_link = document.createAttribute("href");
+                                href_food_link.value = food_recipe_link;
+                                elms_link[food_list_length-1].attributes.setNamedItem(href_food_link);
                                 jQuery('#daily-calorie-intake-pbar').width(data.daily_calorie_intakes * 400 / {{ user.fitness_person_user.daily_required_calorie_intakes }});
                                 jQuery('#daily-protein-intake-pbar').width(data.daily_protein_intake * 400 / {{ user.fitness_person_user.required_protein }});
                                 jQuery('#daily-fat-pbar').width(data.daily_fat_intake * 400 / {{ user.fitness_person_user.required_fat }});
