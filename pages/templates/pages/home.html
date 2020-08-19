@@ -37,7 +37,7 @@
                                     <div class="text-left dib">
                                         <div class="stat-text"><span
                                                 id="fitness-user-weight"
-                                                class="count">{{ user.fitness_person_user.weight }}</span> kg
+                                                >{{ user.fitness_person_user.weight }}</span> kg
                                         </div>
                                         <div class="stat-heading">Weight</div>
                                         <button type="submit" class="btn btn-success waves-effect waves-light"
@@ -102,6 +102,8 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="box-title"><u>Weekly Track</u></h4>
+                            <p class="h6">Green field represents burned calories.</p>
+                            <p class="h6">Orange field represents calorie intakes</p>
                         </div>
                         <div class="row">
                             <div class="col-lg-8">
@@ -353,22 +355,21 @@
                                         </div>
                                         <div class="modal-body">
                                             <div class="form">
-                                                <div class="form-group">
-                                                    <label class="form-check-label"
-                                                           id="weight-selection-label" for="weight-selection">
-                                                        Weight
-                                                    </label>
-                                                    <input class="form-check-input" type="number" style="margin-right: auto" min="1"
-                                                           step="1" name="weight-selection"
-                                                           id="weight-selection" required>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="exampleFormControlSelect1">Your Goal</label>
-                                                    <select class="form-control" id="purpose-of-use">
-                                                        <option value="0">I want to keep my weight</option>
-                                                        <option value="1">I want to lose weight</option>
-                                                        <option value="2">I want to gain weight</option>
-                                                    </select>
+                                                <div class="form-row align-items-center">
+                                                    <div class="col-auto">
+                                                        <label class="sr-only" for="inlineFormInput">Weight</label>
+                                                        </label>
+                                                        <input type="number" min="1" step="1" class="form-control mb-2"
+                                                               id="weight-selection" placeholder="Weight" required>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <label for="exampleFormControlSelect1">Your Goal</label>
+                                                        <select class="form-control" id="purpose-of-use">
+                                                            <option value="0">I want to keep my weight</option>
+                                                            <option value="1">I want to lose weight</option>
+                                                            <option value="2">I want to gain weight</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -718,17 +719,31 @@
                 }
                 daysSorted.reverse();
                 daysSorted.shift();
-                var weekly_height = {{ last_seven_days_weight }} ;
+                //var weekly_height = {{ last_seven_days_weight }};
                 var weekly_calorie_intakes = {{ last_seven_days_calorie_intakes }};
                 var weekly_burned_calories = {{ last_seven_days_burned_calories }};
+                var weekly_calorie_intakes_data = [];
+                var weekly_burned_calories_data = [];
+                var empty_days = 7 - weekly_calorie_intakes.length;
+                for(var i =0; i<7; i++) {
+                    if(i < empty_days){
+                        weekly_calorie_intakes_data[i] = 0;
+                        weekly_burned_calories_data[i] = 0;
+                    }
+                    else{
+                        weekly_calorie_intakes_data[i] = weekly_calorie_intakes[i-empty_days];
+                        weekly_burned_calories_data[i] = weekly_burned_calories[i-empty_days];
+                    }
+                }
+
 
                 // Traffic Chart using chartist
                 if ($('#traffic-chart').length) {
                     var chart = new Chartist.Line('#traffic-chart', {
                         labels: daysSorted,
                         series: [
-                            weekly_burned_calories,
-                            weekly_calorie_intakes,
+                            weekly_burned_calories_data,
+                            weekly_calorie_intakes_data,
                         ]
                     }, {
                         low: 0,
@@ -839,16 +854,21 @@
                                 type: 'POST',
                                 success: function (data) {
                                     user_exercise_id = data.user_exercise_id;
-                                    console.log(user_exercise_id);
                                     how_many_calorie_burn = data.how_many_calorie_burn;
                                     jQuery('#daily_burned_calories').text(data.daily_burned_calories);
                                     jQuery("#exercise-checkbox-list").append('<li> <label> <span><strong>' + exercise_name + "| " + duration + " min" + " | " + how_many_calorie_burn + " cal burned" + '<strong></span>\n <a href=\'#\'\n' +
                                         '                                                               class="fa fa-pencil"></a>\n' +
-                                        '                                                            <a href=\'#\' val= " " id="exercise-times-button" class="fa fa-times"></a> </label> </li>');
-                                    jQuery('#exercise-times-button').attr('val', user_exercise_id);
+                                        '                                                            <a href=\'#\' id="exercise-times-button" class="fa fa-times"></a> </label> </li>');
+                                    var elms = document.querySelectorAll("[id='exercise-times-button']");
+                                    var exercise_list_length = elms.length;
+                                    var val_exercise_id = document.createAttribute("val");
+                                    val_exercise_id.value = user_exercise_id;
+                                    elms[exercise_list_length-1].attributes.setNamedItem(val_exercise_id);
                                     draw_cell_pai_chart(data.daily_burned_calorie, data.daily_calorie_intakes);
                                 }
                             });
+                            jQuery('#add-exercise-modal').modal('hide');
+                            alert('Exercise added successfully');
                         }
                     } else if (jQuery('#weight-radio').is(':checked')) {
                         if (set_number === '') {
@@ -875,15 +895,19 @@
                                     jQuery('#daily_burned_calories').text(data.daily_burned_calories);
                                     jQuery("#exercise-checkbox-list").append('<li> <label><span><strong>' + exercise_name + "| " + set_number + "x" + rep_number + " | " + how_many_calorie_burn + " cal burned" + '</strong></span>\n <a href=\'#\'\n' +
                                         '                                                               class="fa fa-pencil"></a>\n' +
-                                        '                                                             <a href=\'#\' val=" " id="exercise-times-button" class="fa fa-times"></a>  </label> </li>');
-                                    jQuery('#exercise-times-button').attr('val', user_exercise_id);
+                                        '                                                             <a href=\'#\' id="exercise-times-button" class="fa fa-times"></a>  </label> </li>');
+                                    var elms = document.querySelectorAll("[id='exercise-times-button']");
+                                    var exercise_list_length = elms.length;
+                                    var val_exercise_id = document.createAttribute("val");
+                                    val_exercise_id.value = user_exercise_id;
+                                    elms[exercise_list_length-1].attributes.setNamedItem(val_exercise_id);
                                     draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
                                 }
                             });
+                            jQuery('#add-exercise-modal').modal('hide');
+                            alert('Exercise added successfully');
                         }
                     }
-                    jQuery('#add-exercise-modal').modal('hide');
-                    alert('Exercise added successfully')
                 });
             });
 
@@ -922,8 +946,12 @@
                                 food_calorie = data.food_calorie;
                                 jQuery("#food-checkbox-list").append('<li> <label> <span><strong>' + food_name + '| (x' + portion + ')' + ' | ' + food_calorie + ' cal taken' + '</strong></span>\n <a href=\'#\'\n' +
                                     '                                                               class="fa fa-pencil"></a>\n' +
-                                    '                                                            <a href=\'#\' class="fa fa-times" val= " " id="food-times-button" ></a> </label> </li>');
-                                jQuery('#food-times-button').attr('val', user_food_id);
+                                    '                                                            <a href=\'#\' class="fa fa-times" id="food-times-button" ></a> </label> </li>');
+                                var elms = document.querySelectorAll("[id='food-times-button']");
+                                var food_list_length = elms.length;
+                                var val_food_id = document.createAttribute("val");
+                                val_food_id.value = user_food_id;
+                                elms[food_list_length-1].attributes.setNamedItem(val_food_id);
                                 jQuery('#daily-calorie-intake-pbar').width(data.daily_calorie_intakes * 400 / {{ user.fitness_person_user.daily_required_calorie_intakes }});
                                 jQuery('#daily-protein-intake-pbar').width(data.daily_protein_intake * 400 / {{ user.fitness_person_user.required_protein }});
                                 jQuery('#daily-fat-pbar').width(data.daily_fat_intake * 400 / {{ user.fitness_person_user.required_fat }});
@@ -1123,9 +1151,6 @@
             });
 
             function draw_cell_pai_chart(daily_burned_calories, daily_calorie_intakes) {
-                console.log('girdi');
-                console.log(daily_burned_calories);
-                console.log(daily_calorie_intakes);
                 var cellPaiChart = [
                     {label: "Calorie Burned", data: [[1, daily_burned_calories]], color: '#5b83de'},
                     {label: "Calorie Intake", data: [[1, daily_calorie_intakes]], color: '#00bfa5'}

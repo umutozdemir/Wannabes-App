@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timedelta
+
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -109,24 +109,25 @@ class AddExerciseView(View):
             duration = int(request.POST.get('duration', int))
             daily_person_id = request.POST.get('daily_person_id', int)
             daily_exercise_program_id = request.POST.get('daily_exercise_program_id', int)
+            exercise_to_add = Exercise.objects.get(pk=exercise_id)
             how_many_calorie_burn = int(duration * 6 * 3.5 * current_user.weight / 200)
             daily_person_of_current_user = DailyPerson.objects.get(pk=daily_person_id)
             daily_exercise_program_of_current_user = ExerciseProgram.objects.get(pk=daily_exercise_program_id)
-            exercise_to_add = UserExercise.objects.create(
+            user_exercise_to_add = UserExercise.objects.create(
                 exercise_program=daily_exercise_program_of_current_user,
-                exercise=Exercise.objects.get(pk=exercise_id),
+                exercise=exercise_to_add,
                 duration=duration,
                 how_many_calorie_burn=how_many_calorie_burn)
             daily_exercise_program_of_current_user.save()
             daily_person_of_current_user.daily_burned_calories += how_many_calorie_burn
             daily_person_of_current_user.save()
             current_user.save()
-            print(daily_person_of_current_user.daily_burned_calories)
             data = {
                 'daily_burned_calories': daily_person_of_current_user.daily_burned_calories,
                 'daily_calorie_intakes': daily_person_of_current_user.daily_calorie_intakes,
-                'user_exercise_id': exercise_to_add.id,
-                'how_many_calorie_burn': how_many_calorie_burn
+                'user_exercise_id': user_exercise_to_add.id,
+                'how_many_calorie_burn': how_many_calorie_burn,
+                'exercise_video_link': exercise_to_add.video_link
             }
             return HttpResponse(json.dumps(data), content_type="application/json")
         elif exercise_type == 1:
@@ -140,9 +141,10 @@ class AddExerciseView(View):
             how_many_calorie_burn = set_number * rep_number * 12
             daily_person_of_current_user = DailyPerson.objects.get(pk=daily_person_id)
             daily_exercise_program_of_current_user = ExerciseProgram.objects.get(pk=daily_exercise_program_id)
-            exercise_to_add = UserExercise.objects.create(
+            exercise_to_add = Exercise.objects.get(pk=exercise_id)
+            user_exercise_to_add = UserExercise.objects.create(
                 exercise_program=daily_exercise_program_of_current_user,
-                exercise=Exercise.objects.get(pk=exercise_id),
+                exercise=exercise_to_add,
                 set_number=set_number,
                 rep_number=rep_number,
                 how_many_calorie_burn=how_many_calorie_burn)
@@ -150,12 +152,12 @@ class AddExerciseView(View):
             daily_person_of_current_user.daily_burned_calories += how_many_calorie_burn
             daily_person_of_current_user.save()
             current_user.save()
-            print(daily_person_of_current_user.daily_burned_calories)
             data = {
                 'daily_burned_calories': daily_person_of_current_user.daily_burned_calories,
                 'daily_calorie_intakes': daily_person_of_current_user.daily_calorie_intakes,
-                'user_exercise_id': exercise_to_add.id,
-                'how_many_calorie_burn': how_many_calorie_burn
+                'user_exercise_id': user_exercise_to_add.id,
+                'how_many_calorie_burn': how_many_calorie_burn,
+                'exercise_video_link': exercise_to_add.video_link
             }
             return HttpResponse(json.dumps(data), content_type="application/json")
 
@@ -190,7 +192,8 @@ class AddFoodView(View):
             'daily_carbohydrate_intake': daily_person_of_current_user.daily_carbohydrate_intake,
             'user_food_id': user_food_to_add.id,
             'food_calorie': food_to_add.calorie,
-            'daily_burned_calories': daily_person_of_current_user.daily_burned_calories
+            'daily_burned_calories': daily_person_of_current_user.daily_burned_calories,
+            'food_recipe_link': food_to_add.recipe_link
         }
         return HttpResponse(json.dumps(data), content_type="application/json")
 
@@ -225,7 +228,7 @@ class EditFitnessProfile(View):
     def post(self, request, *args, **kwargs):
         fitness_person_id = request.POST.get('fitness_person_id', int)
         daily_person_id = request.POST.get('daily_person_id', int)
-        weight = int(request.POST.get('weight', int))
+        weight = float(request.POST.get('weight', int))
         purpose_of_use = int(request.POST.get('purpose_of_use', int))
         fitness_person = FitnessPerson.objects.get(pk=fitness_person_id)
         fitness_person.weight = weight

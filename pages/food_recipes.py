@@ -10,9 +10,9 @@ django.setup()
 
 from pages.models import Food
 
-foods = Food.objects.all()
+food_set = Food.objects.all()
 search_url = 'https://www.googleapis.com/youtube/v3/search'
-for food in Food.objects.all():
+for food in food_set:
     try:
         search_string = 'how to make ' + food.name
         params = {
