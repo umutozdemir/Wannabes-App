@@ -37,7 +37,7 @@
                                     <div class="text-left dib">
                                         <div class="stat-text"><span
                                                 id="fitness-user-weight"
-                                                >{{ user.fitness_person_user.weight }}</span> kg
+                                        >{{ user.fitness_person_user.weight }}</span> kg
                                         </div>
                                         <div class="stat-heading">Weight</div>
                                         <button type="submit" class="btn btn-success waves-effect waves-light"
@@ -102,14 +102,11 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="box-title"><u>Weekly Track</u></h4>
-                            <p class="h6">Green field represents burned calories.</p>
-                            <p class="h6">Orange field represents calorie intakes</p>
                         </div>
                         <div class="row">
                             <div class="col-lg-8">
                                 <div class="card-body">
-                                    <!-- <canvas id="TrafficChart"></canvas>   -->
-                                    <div id="traffic-chart" class="traffic-chart"></div>
+                                    <canvas id="calorieChart"></canvas>
                                 </div>
                             </div>
                             <div class="col-lg-4">
@@ -652,14 +649,23 @@
                 </div>
                 <!-- Calender Chart Weather  -->
                 <div class="row-no-gutters">
-                    <div class="col-md-12 col-lg-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="calender-cont widget-calender">
-                                    <div id="calendar"></div>
+                    <div class="row">
+                        <div class="col-md-12 col-lg-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="calender-cont widget-calender">
+                                        <div id="calendar"></div>
+                                    </div>
+                                </div>
+                            </div><!-- /.card -->
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <canvas id="myChart"></canvas>
                                 </div>
                             </div>
-                        </div><!-- /.card -->
+                        </div>
                     </div>
                 </div>
                 <!-- /Calender Chart Weather -->
@@ -718,109 +724,75 @@
                     daysSorted.push(days[newDate.getDay()]);
                 }
                 daysSorted.reverse();
-                daysSorted.shift();
-                //var weekly_height = {{ last_seven_days_weight }};
+                //daysSorted.shift();
+                var weekly_weight = {{ last_seven_days_weight }};
                 var weekly_calorie_intakes = {{ last_seven_days_calorie_intakes }};
                 var weekly_burned_calories = {{ last_seven_days_burned_calories }};
                 var weekly_calorie_intakes_data = [];
                 var weekly_burned_calories_data = [];
+                var weekly_weight_data = []
                 var empty_days = 7 - weekly_calorie_intakes.length;
-                for(var i =0; i<7; i++) {
-                    if(i < empty_days){
+                for (var i = 0; i < 7; i++) {
+                    if (i < empty_days) {
                         weekly_calorie_intakes_data[i] = 0;
                         weekly_burned_calories_data[i] = 0;
-                    }
-                    else{
-                        weekly_calorie_intakes_data[i] = weekly_calorie_intakes[i-empty_days];
-                        weekly_burned_calories_data[i] = weekly_burned_calories[i-empty_days];
+                        weekly_weight_data[i] = weekly_weight[0];
+                    } else {
+                        weekly_calorie_intakes_data[i] = weekly_calorie_intakes[i - empty_days];
+                        weekly_burned_calories_data[i] = weekly_burned_calories[i - empty_days];
+                        weekly_weight_data[i] = weekly_weight[i - empty_days];
                     }
                 }
 
+                var ctx_weight = document.getElementById('myChart').getContext('2d');
+                var chart = new Chart(ctx_weight, {
+                    // The type of chart we want to create
+                    type: 'line',
 
-                // Traffic Chart using chartist
-                if ($('#traffic-chart').length) {
-                    var chart = new Chartist.Line('#traffic-chart', {
+                    // The data for our dataset
+                    data: {
                         labels: daysSorted,
-                        series: [
-                            weekly_burned_calories_data,
-                            weekly_calorie_intakes_data,
-                        ]
-                    }, {
-                        low: 0,
-                        showArea: true,
-                        showLine: false,
-                        showPoint: false,
-                        fullWidth: true,
-                        axisX: {
-                            showGrid: true
-                        }
-                    });
-
-                    chart.on('draw', function (data) {
-                        if (data.type === 'line' || data.type === 'area') {
-                            data.element.animate({
-                                d: {
-                                    begin: 2000 * data.index,
-                                    dur: 2000,
-                                    from: data.path.clone().scale(1, 0).translate(0, data.chartRect.height()).stringify(),
-                                    to: data.path.clone().stringify(),
-                                    easing: Chartist.Svg.Easing.easeOutQuint
-                                }
-                            });
-                        }
-                    });
-                }
-                // Traffic Chart using chartist End
-
-                //Traffic chart chart-js
-                if ($('#TrafficChart').length) {
-                    var ctx = document.getElementById("TrafficChart");
-                    ctx.height = 150;
-                    var myChart = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: daysSorted,
-                            datasets: [
-                                {
-                                    label: "Visit",
-                                    borderColor: "rgba(4, 73, 203,.09)",
-                                    borderWidth: "1",
-                                    backgroundColor: "rgba(4, 73, 203,.5)",
-                                    data: [0, 2900, 5000, 3300, 6000, 3250, 4000]
-                                },
-                                {
-                                    label: "Bounce",
-                                    borderColor: "rgba(245, 23, 66, 0.9)",
-                                    borderWidth: "1",
-                                    backgroundColor: "rgba(245, 23, 66,.5)",
-                                    pointHighlightStroke: "rgba(245, 23, 66,.5)",
-                                    data: [0, 4200, 4500, 1600, 4200, 1500, 4000]
-                                },
-                                {
-                                    label: "Targeted",
-                                    borderColor: "rgba(40, 169, 46, 0.9)",
-                                    borderWidth: "1",
-                                    backgroundColor: "rgba(40, 169, 46, .5)",
-                                    pointHighlightStroke: "rgba(40, 169, 46,.5)",
-                                    data: [1000, 5200, 3600, 2600, 4200, 5300, 5000]
-                                }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            tooltips: {
-                                mode: 'index',
-                                intersect: false
-                            },
-                            hover: {
-                                mode: 'nearest',
-                                intersect: true
+                        datasets: [
+                            {
+                                label: 'Weekly Weight Track',
+                                backgroundColor: 'rgb(255, 99, 132)',
+                                borderColor: 'rgb(255, 99, 132)',
+                                data: weekly_weight_data
                             }
+                        ]
+                    },
 
-                        }
-                    });
-                }
-                //Traffic chart chart-js  End
+                    // Configuration options go here
+                    options: {}
+                });
+
+                var ctx_calorie = document.getElementById('calorieChart').getContext('2d');
+                var calorie_chart = new Chart(ctx_calorie, {
+                    // The type of chart we want to create
+                    type: 'line',
+
+                    // The data for our dataset
+                    data: {
+                        labels: daysSorted,
+                        datasets: [
+                            {
+                                label: 'Weekly Calorie Intakes',
+                                backgroundColor: 'rgb(255, 99, 132)',
+                                borderColor: 'rgb(255, 99, 132)',
+                                data: weekly_calorie_intakes_data
+                            },
+                            {
+                                label: 'Weekly Burned Calories',
+                                backgroundColor: 'rgb(0,128,0)',
+                                borderColor: "rgba(4, 73, 203,.09)",
+                                data: weekly_burned_calories_data
+                            }
+                        ]
+                    },
+
+                    // Configuration options go here
+                    options: {}
+                });
 
             });
 
@@ -865,11 +837,11 @@
                                     var exercise_list_length = elms.length;
                                     var val_exercise_id = document.createAttribute("val");
                                     val_exercise_id.value = user_exercise_id;
-                                    elms[exercise_list_length-1].attributes.setNamedItem(val_exercise_id);
+                                    elms[exercise_list_length - 1].attributes.setNamedItem(val_exercise_id);
                                     var elms_link = document.querySelectorAll("[id='exercise-video-link-button']");
                                     var href_exercise_link = document.createAttribute("href");
                                     href_exercise_link.value = exercise_video_link;
-                                    elms_link[exercise_list_length-1].attributes.setNamedItem(href_exercise_link);
+                                    elms_link[exercise_list_length - 1].attributes.setNamedItem(href_exercise_link);
                                     draw_cell_pai_chart(data.daily_burned_calorie, data.daily_calorie_intakes);
                                 }
                             });
@@ -907,11 +879,11 @@
                                     var exercise_list_length = elms.length;
                                     var val_exercise_id = document.createAttribute("val");
                                     val_exercise_id.value = user_exercise_id;
-                                    elms[exercise_list_length-1].attributes.setNamedItem(val_exercise_id);
+                                    elms[exercise_list_length - 1].attributes.setNamedItem(val_exercise_id);
                                     var elms_link = document.querySelectorAll("[id='exercise-video-link-button']");
                                     var href_exercise_link = document.createAttribute("href");
                                     href_exercise_link.value = exercise_video_link;
-                                    elms_link[exercise_list_length-1].attributes.setNamedItem(href_exercise_link);
+                                    elms_link[exercise_list_length - 1].attributes.setNamedItem(href_exercise_link);
                                     draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
                                 }
                             });
@@ -963,11 +935,11 @@
                                 var food_list_length = elms.length;
                                 var val_food_id = document.createAttribute("val");
                                 val_food_id.value = user_food_id;
-                                elms[food_list_length-1].attributes.setNamedItem(val_food_id);
+                                elms[food_list_length - 1].attributes.setNamedItem(val_food_id);
                                 var elms_link = document.querySelectorAll("[id='food-video-link-button']");
                                 var href_food_link = document.createAttribute("href");
                                 href_food_link.value = food_recipe_link;
-                                elms_link[food_list_length-1].attributes.setNamedItem(href_food_link);
+                                elms_link[food_list_length - 1].attributes.setNamedItem(href_food_link);
                                 jQuery('#daily-calorie-intake-pbar').width(data.daily_calorie_intakes * 400 / {{ user.fitness_person_user.daily_required_calorie_intakes }});
                                 jQuery('#daily-protein-intake-pbar').width(data.daily_protein_intake * 400 / {{ user.fitness_person_user.required_protein }});
                                 jQuery('#daily-fat-pbar').width(data.daily_fat_intake * 400 / {{ user.fitness_person_user.required_fat }});

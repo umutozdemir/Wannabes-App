@@ -235,6 +235,7 @@ class EditFitnessProfile(View):
         fitness_person.purpose_of_use = purpose_of_use
         fitness_person.save()
         daily_person_of_current_user = DailyPerson.objects.get(pk=daily_person_id)
+        daily_person_of_current_user.weight = weight
         calculations.calculate_daily_required_calorie_intakes(fitness_person)
         calculations.calculate_daily_macros(fitness_person)
         daily_person_of_current_user.body_mass_index = calculations.calculate_body_mass_index(fitness_person)
