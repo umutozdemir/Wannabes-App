@@ -713,86 +713,8 @@
                 var daily_calorie_intakes = {{ daily_person.daily_calorie_intakes }};
                 draw_cell_pai_chart(daily_burned_calories, daily_calorie_intakes);
 
-                var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-                var goBackDays = 7;
-
-                var today = new Date();
-                var daysSorted = [];
-
-                for (var i = 0; i < goBackDays; i++) {
-                    var newDate = new Date(today.setDate(today.getDate() - 1));
-                    daysSorted.push(days[newDate.getDay()]);
-                }
-                daysSorted.reverse();
-                //daysSorted.shift();
-                var weekly_weight = {{ last_seven_days_weight }};
-                var weekly_calorie_intakes = {{ last_seven_days_calorie_intakes }};
-                var weekly_burned_calories = {{ last_seven_days_burned_calories }};
-                var weekly_calorie_intakes_data = [];
-                var weekly_burned_calories_data = [];
-                var weekly_weight_data = []
-                var empty_days = 7 - weekly_calorie_intakes.length;
-                for (var i = 0; i < 7; i++) {
-                    if (i < empty_days) {
-                        weekly_calorie_intakes_data[i] = 0;
-                        weekly_burned_calories_data[i] = 0;
-                        weekly_weight_data[i] = weekly_weight[0];
-                    } else {
-                        weekly_calorie_intakes_data[i] = weekly_calorie_intakes[i - empty_days];
-                        weekly_burned_calories_data[i] = weekly_burned_calories[i - empty_days];
-                        weekly_weight_data[i] = weekly_weight[i - empty_days];
-                    }
-                }
-
-                var ctx_weight = document.getElementById('myChart').getContext('2d');
-                var chart = new Chart(ctx_weight, {
-                    // The type of chart we want to create
-                    type: 'line',
-
-                    // The data for our dataset
-                    data: {
-                        labels: daysSorted,
-                        datasets: [
-                            {
-                                label: 'Weekly Weight Track',
-                                backgroundColor: 'rgb(255, 99, 132)',
-                                borderColor: 'rgb(255, 99, 132)',
-                                data: weekly_weight_data
-                            }
-                        ]
-                    },
-
-                    // Configuration options go here
-                    options: {}
-                });
-
-                var ctx_calorie = document.getElementById('calorieChart').getContext('2d');
-                var calorie_chart = new Chart(ctx_calorie, {
-                    // The type of chart we want to create
-                    type: 'line',
-
-                    // The data for our dataset
-                    data: {
-                        labels: daysSorted,
-                        datasets: [
-                            {
-                                label: 'Weekly Calorie Intakes',
-                                backgroundColor: 'rgb(255, 99, 132)',
-                                borderColor: 'rgb(255, 99, 132)',
-                                data: weekly_calorie_intakes_data
-                            },
-                            {
-                                label: 'Weekly Burned Calories',
-                                backgroundColor: 'rgb(0,128,0)',
-                                borderColor: "rgba(4, 73, 203,.09)",
-                                data: weekly_burned_calories_data
-                            }
-                        ]
-                    },
-
-                    // Configuration options go here
-                    options: {}
-                });
+                drawTrackCharts();
+                drawWeightChart();
 
             });
 
@@ -842,6 +764,7 @@
                                     var href_exercise_link = document.createAttribute("href");
                                     href_exercise_link.value = exercise_video_link;
                                     elms_link[exercise_list_length - 1].attributes.setNamedItem(href_exercise_link);
+                                    drawTrackCharts(data.daily_calorie_intakes, data.daily_burned_calories);
                                     draw_cell_pai_chart(data.daily_burned_calorie, data.daily_calorie_intakes);
                                 }
                             });
@@ -884,6 +807,7 @@
                                     var href_exercise_link = document.createAttribute("href");
                                     href_exercise_link.value = exercise_video_link;
                                     elms_link[exercise_list_length - 1].attributes.setNamedItem(href_exercise_link);
+                                    drawTrackCharts(data.daily_calorie_intakes, data.daily_burned_calories);
                                     draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
                                 }
                             });
@@ -944,6 +868,7 @@
                                 jQuery('#daily-protein-intake-pbar').width(data.daily_protein_intake * 400 / {{ user.fitness_person_user.required_protein }});
                                 jQuery('#daily-fat-pbar').width(data.daily_fat_intake * 400 / {{ user.fitness_person_user.required_fat }});
                                 jQuery('#daily-carb-intake-pbar').width(data.daily_carbohydrate_intake * 400 / {{ user.fitness_person_user.required_carbohydrate }});
+                                drawTrackCharts(data.daily_calorie_intakes, data.daily_burned_calories);
                                 draw_flot_pie(data.daily_protein_intake, data.daily_fat_intake, data.daily_carbohydrate_intake);
                                 draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
                             }
@@ -1058,6 +983,7 @@
                             jQuery('#daily-protein-intake-pbar').width(data.daily_protein_intake * 400 / {{ user.fitness_person_user.required_protein }});
                             jQuery('#daily-fat-pbar').width(data.daily_fat_intake * 400 / {{ user.fitness_person_user.required_fat }});
                             jQuery('#daily-carb-intake-pbar').width(data.daily_carbohydrate_intake * 400 / {{ user.fitness_person_user.required_carbohydrate }});
+                            drawTrackCharts(data.daily_calorie_intakes, data.daily_burned_calories);
                             draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
                             draw_flot_pie(data.daily_protein_intake, data.daily_fat_intake, data.daily_carbohydrate_intake);
                             alert(data.message);
@@ -1088,6 +1014,7 @@
                         if (data) {
                             jQuery('#daily_burned_calories').text(data.daily_burned_calories);
                             alert(data.message);
+                            drawTrackCharts(data.daily_calorie_intakes, data.daily_burned_calories);
                             draw_cell_pai_chart(data.daily_burned_calories, data.daily_calorie_intakes);
                         }
                     }
@@ -1129,6 +1056,7 @@
                                     jQuery('#daily-protein-intake-pbar').width(({{ daily_person.daily_protein_intake }}) * 400 / data.required_protein_intake);
                                     jQuery('#daily-fat-pbar').width(({{ daily_person.daily_fat_intake }}) * 400 / data.required_fat_intake);
                                     jQuery('#daily-carb-intake-pbar').width(({{ daily_person.daily_carbohydrate_intake }}) * 400 / data.required_carbohydrate_intake);
+                                    drawWeightChart(data.weight);
                                     alert(data.message);
                                 }
                                 jQuery('#edit-profile-modal').modal('hide');
@@ -1197,6 +1125,119 @@
                     }
                 });
                 // Pie chart flotPie1  End
+            }
+
+
+            function drawTrackCharts(new_calorie_intake, new_burned_calories) {
+                var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                var goBackDays = 7;
+
+                var today = new Date();
+                var daysSorted = [];
+
+                for (var i = 0; i < goBackDays; i++) {
+                    var newDate = new Date(today.setDate(today.getDate() - 1));
+                    daysSorted.push(days[newDate.getDay()]);
+                }
+                daysSorted.reverse();
+                var weekly_calorie_intakes = {{ last_seven_days_calorie_intakes }};
+                var weekly_burned_calories = {{ last_seven_days_burned_calories }};
+                var weekly_calorie_intakes_data = [];
+                var weekly_burned_calories_data = [];
+                var empty_days = 7 - weekly_calorie_intakes.length;
+                for (var i = 0; i < 7; i++) {
+                    if (i < empty_days) {
+                        weekly_calorie_intakes_data[i] = 0;
+                        weekly_burned_calories_data[i] = 0;
+                    } else {
+                        weekly_calorie_intakes_data[i] = weekly_calorie_intakes[i - empty_days];
+                        weekly_burned_calories_data[i] = weekly_burned_calories[i - empty_days];
+                    }
+                }
+
+                if (typeof new_calorie_intake !== 'undefined') {
+                    weekly_calorie_intakes_data[6] = new_calorie_intake;
+                }
+                if (typeof new_burned_calories !== 'undefined') {
+                    weekly_burned_calories_data[6] = new_burned_calories;
+                }
+
+                var ctx_calorie = document.getElementById('calorieChart').getContext('2d');
+                var calorie_chart = new Chart(ctx_calorie, {
+                    // The type of chart we want to create
+                    type: 'line',
+
+                    // The data for our dataset
+                    data: {
+                        labels: daysSorted,
+                        datasets: [
+                            {
+                                label: 'Weekly Calorie Intakes',
+                                backgroundColor: 'rgb(255, 99, 132)',
+                                borderColor: 'rgb(255, 99, 132)',
+                                data: weekly_calorie_intakes_data
+                            },
+                            {
+                                label: 'Weekly Burned Calories',
+                                backgroundColor: 'rgb(0,128,0)',
+                                borderColor: "rgba(4, 73, 203,.09)",
+                                data: weekly_burned_calories_data
+                            }
+                        ]
+                    },
+
+                    // Configuration options go here
+                    options: {}
+                });
+            }
+
+            function drawWeightChart(new_weight) {
+                var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                var goBackDays = 7;
+
+                var today = new Date();
+                var daysSorted = [];
+
+                for (var i = 0; i < goBackDays; i++) {
+                    var newDate = new Date(today.setDate(today.getDate() - 1));
+                    daysSorted.push(days[newDate.getDay()]);
+                }
+                daysSorted.reverse();
+                var weekly_weight = {{ last_seven_days_weight }};
+                var weekly_weight_data = []
+                var empty_days = 7 - weekly_weight.length;
+                for (var i = 0; i < 7; i++) {
+                    if (i < empty_days) {
+                        weekly_weight_data[i] = weekly_weight[0];
+                    } else {
+                        weekly_weight_data[i] = weekly_weight[i - empty_days];
+                    }
+                }
+                if (typeof new_weight !== 'undefined') {
+                    weekly_weight_data[6] = new_weight;
+                }
+
+                var ctx_weight = document.getElementById('myChart').getContext('2d');
+                var chart = new Chart(ctx_weight, {
+                    // The type of chart we want to create
+                    type: 'line',
+
+                    // The data for our dataset
+                    data: {
+                        labels: daysSorted,
+                        datasets: [
+                            {
+                                label: 'Weekly Weight Track',
+                                backgroundColor: 'rgb(255, 99, 132)',
+                                borderColor: 'rgb(255, 99, 132)',
+                                data: weekly_weight_data
+                            }
+                        ]
+                    },
+
+                    // Configuration options go here
+                    options: {}
+                });
             }
 
         </script>

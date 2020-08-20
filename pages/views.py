@@ -1,6 +1,5 @@
 import json
 
-
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
@@ -28,16 +27,6 @@ class HomeView(LoginRequiredMixin, View):
             date_added__date=timezone.now().today().date())[0]
         daily_diet_program = daily_person_of_current_user.dietprogram_set.filter(
             date_added__date=timezone.now().today().date())[0]
-        # first object of set is oldest daily_person, last object of set is newest daily_person
-        # last_seven_days arrays length might be less than 7.
-        last_seven_days_daily_persons = DailyPerson.objects.filter(fitness_user=fitness_person_of_current_user)[:7]
-        last_seven_days_weight = []
-        last_seven_days_calorie_intakes = []
-        last_seven_days_burned_calories = []
-        for daily_person in last_seven_days_daily_persons:
-            last_seven_days_weight.append(daily_person.weight)
-            last_seven_days_calorie_intakes.append(daily_person.daily_calorie_intakes)
-            last_seven_days_burned_calories.append(daily_person.daily_burned_calories)
 
         # if the user login for first time then do calculations.
         if current_user.date_joined.date() == timezone.now().today().date():
@@ -48,6 +37,17 @@ class HomeView(LoginRequiredMixin, View):
                 fitness_person_of_current_user)
             calculations.calculate_body_fat_percentage(current_user.fitness_person_user)
             current_user.fitness_person_user.save()
+
+        # first object of set is oldest daily_person, last object of set is newest daily_person
+        # last_seven_days arrays length might be less than 7.
+        last_seven_days_daily_persons = DailyPerson.objects.filter(fitness_user=fitness_person_of_current_user)[:7]
+        last_seven_days_weight = []
+        last_seven_days_calorie_intakes = []
+        last_seven_days_burned_calories = []
+        for daily_person in last_seven_days_daily_persons:
+            last_seven_days_weight.append(daily_person.weight)
+            last_seven_days_calorie_intakes.append(daily_person.daily_calorie_intakes)
+            last_seven_days_burned_calories.append(daily_person.daily_burned_calories)
         context = {'daily_person': daily_person_of_current_user,
                    'fitness_person': fitness_person_of_current_user,
                    'daily_exercise_program': daily_exercise_program_of_current_user,
