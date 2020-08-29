@@ -1,5 +1,5 @@
 # Wannabes-App
-Exercise&Diet tracking CRUD web application built with Python & Django & Bootstrap4
+Exercise&Diet tracking CRUD web application built with Python-Django & Bootstrap4
 # Usage
 Once you have cloned the repo, delete venv folder then create a new virtualenv and install the requirements by entering ```pip install -r requirements.txt``` <br/>
 You must have installed mysql on your computer <br/>
