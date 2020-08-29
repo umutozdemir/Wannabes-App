@@ -9,5 +9,4 @@ Then, create daily users with this command ```python manage.py daily_routines```
 Finally, run the server python manage.py runserver
 The application will be running on http://localhost:8000
 # Screenshots
-![Image of app]
-(https://imgur.com/a/QmPbAYm)
+https://imgur.com/a/QmPbAYm
